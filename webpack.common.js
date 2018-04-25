@@ -22,7 +22,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
-      title: "Shard Idle items",
+      title: "Shard Idle Items",
       template: './index.hbs',
       chunks: ['app'],
     }),

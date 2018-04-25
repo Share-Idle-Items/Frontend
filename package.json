@@ -11,6 +11,7 @@
   "author": "LoveSy <shana@zju.edu.cn>",
   "license": "MIT",
   "dependencies": {
+    "hbs": "^4.0.1",
     "mobx": "^4.2.0",
     "mobx-react": "^5.0.0",
     "react": "^16.3.2",

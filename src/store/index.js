@@ -1,9 +1,7 @@
 import {observable, action} from 'mobx';
 class Store {
-  @observable hello = "hello";
-  @action updateHello(hello) {
-    this.hello = hello;
-  }
+  @observable AppName = "共享闲置";
+  @observable hasSignedIn = false;
 }
 
 const STORE = new Store();

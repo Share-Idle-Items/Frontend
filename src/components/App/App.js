@@ -1,16 +1,16 @@
 import React, {Component} from 'react';
 import {inject, observer} from 'mobx-react';
 import { withStyles } from 'material-ui/styles';
-import NavigationBarOnTop from '../NavigationBarOnTop';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
+import NavigationBarOnTop from './NavigationBarOnTop';
+import CopyRight from './CopyRight';
 import HomePage from '../HomePage';
 import PublishPage from '../PublishPage';
 import UserPage from '../UserPage';
 
 const styles = theme => ({
-  paddingTop: {
+  mainPage: {
     paddingTop: '80px',
+    paddingBottom: '80px',
   },
 });
 
@@ -22,13 +22,14 @@ class App extends Component {
     return (
       <main>
         <NavigationBarOnTop/>
-        <div className={classes.paddingTop}>
+        <div className={classes.mainPage}>
         {
           ((this.props.store.pageCode === this.props.store.HOMEPAGE) && (<HomePage/>)) ||
           ((this.props.store.pageCode === this.props.store.PUBLISHPAGE) && (<PublishPage/>)) ||
           ((this.props.store.pageCode === this.props.store.USERPAGE) && (<UserPage/>))
         }
         </div>
+        <CopyRight/>
       </main>
     );
   }

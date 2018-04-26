@@ -7,7 +7,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   context: path.join(__dirname, "src"),
   entry: {
-    app: './index.js',
+    app: './NavigationBarOnTop.js',
   },
 
   resolve: {

@@ -14,7 +14,7 @@ const styles = theme => ({
   columnWithLeftAlign: {
     display: 'flex',
     height: '40px',
-    backgroundColor: 'rgb(36,40,41)',
+    backgroundColor: 'rgb(94,87,85)',
     margin: '6px 0',
     padding: '0 10px',
     color: 'rgb(230,230,230)',
@@ -23,7 +23,7 @@ const styles = theme => ({
   columnWithCenterAlign: {
     display: 'flex',
     height: '50px',
-    backgroundColor: 'rgb(36,40,41)',
+    backgroundColor: 'rgb(94,87,85)',
     margin: '6px 0',
     color: 'rgb(230,230,230)',
     justifyContent: 'center',

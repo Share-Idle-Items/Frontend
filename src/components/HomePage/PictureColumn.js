@@ -59,7 +59,13 @@ const styles = theme => ({
 @inject('store')
 @observer
 class PictureColumn extends Component {
-  timer = setInterval(this.switchToNextPicture.bind(this), 2000);
+  constructor(props) {
+    super(props);
+    this.timer = setInterval(this.switchToNextPicture.bind(this), 2000);
+    this.state = {
+      showSlider: false,
+    }
+  }
 
   render() {
     const {classes} = this.props;
@@ -67,39 +73,46 @@ class PictureColumn extends Component {
     return (
       <div className={classes.root} onMouseEnter={this.stopTimer.bind(this)} onMouseLeave={this.startTimer.bind(this)}>
         <img className={classes.img} src={data.pictures[data.selected].picSrc} />
-        <IconButton className={classes.left} color="secondary" onClick={this.switchToPreviewPicture.bind(this)}>
-          <KeyboardArrowLeft />
-        </IconButton>
-        <IconButton className={classes.right} color="secondary" onClick={this.switchToNextPicture.bind(this)}>
-          <KeyboardArrowRight />
-        </IconButton>
-        <div className={classes.radioBar}>
-          {
-            data.pictures.map((picture,i) => {
-              return (
-                <Radio
-                  checked={data.selected === i}
-                  onChange={this.handleChange}
-                  value={i.toString()}
-                  color="secondary"
-                  className={classes.radio}
-                  icon={<RadioButtonUncheckedIcon className={classes.radioIcon} />}
-                  checkedIcon={<RadioButtonCheckedIcon className={classes.radioIcon} />}
-                  key={`pictureRadioOnHeadColumn-${i}`}
-                />
-              );
-            })
-          }
-        </div>
+        {this.state.showSlider && (
+          <IconButton className={classes.left} color="secondary" onClick={this.switchToPreviewPicture.bind(this)}>
+            <KeyboardArrowLeft />
+          </IconButton>
+        )}
+        {this.state.showSlider && (
+          < IconButton className={classes.right} color="secondary" onClick={this.switchToNextPicture.bind(this)}>
+            <KeyboardArrowRight />
+          </IconButton>
+        )}
+        {this.state.showSlider && (
+          <div className={classes.radioBar}>
+            {
+              data.pictures.map((picture, i) => {
+                return (
+                  <Radio checked={data.selected === i} onChange={this.handleChange}
+                         value={i.toString()} color="secondary" className={classes.radio}
+                         icon={<RadioButtonUncheckedIcon className={classes.radioIcon} />}
+                         checkedIcon={<RadioButtonCheckedIcon className={classes.radioIcon} />}
+                         key={`pictureRadioOnHeadColumn-${i}`} />
+                );
+              })
+            }
+          </div>
+        )}
       </div>
     );
   }
 
   stopTimer() {
+    this.setState({
+      showSlider: true,
+    });
     clearInterval(this.timer);
   }
 
   startTimer() {
+    this.setState({
+      showSlider: false,
+    });
     this.timer = setInterval(this.switchToNextPicture.bind(this), 2000);
   }
 

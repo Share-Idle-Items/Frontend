@@ -12,8 +12,9 @@
   "license": "MIT",
   "dependencies": {
     "@material-ui/icons": "^1.0.0-beta.43",
-    "hbs": "^4.0.1",
     "babel-core": "^6.26.0",
+    "file-loader": "^1.1.11",
+    "hbs": "^4.0.1",
     "material-ui": "^1.0.0-beta.43",
     "mobx": "^4.2.0",
     "mobx-react": "^5.0.0",

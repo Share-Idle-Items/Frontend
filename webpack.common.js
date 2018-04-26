@@ -22,7 +22,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
-      title: "Shard Idle Items",
+      title: "Share Idle Items",
       template: './index.hbs',
       chunks: ['app'],
     }),
@@ -50,6 +50,11 @@ module.exports = {
       }, {
         loader: "yaml-loader",
       }],
-    }]
+    }, {
+      test: /\.(jpe?g|png|gif|mp3)$/i,
+      exclude: /node_modules/,
+      loaders: ['file-loader']
+    },
+    ]
   }
 };

@@ -22,7 +22,6 @@ const styles = theme => ({
   flex: {
     flex: 1,
   },
-  style: "primary", // primary secondary default
   bootstrapRoot: {
     padding: 0,
     'label + &': {

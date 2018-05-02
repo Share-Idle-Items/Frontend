@@ -5,7 +5,10 @@ import HeadColumn from './HeadColumn';
 import ItemsColumn from './ItemsColumn';
 
 const styles = theme => ({
-
+  root: {
+    paddingTop: '80px',
+    paddingBottom: '80px',
+  }
 });
 
 @inject('store')
@@ -15,7 +18,7 @@ class HomePage extends Component {
     const {classes, store} = this.props;
 
     return (
-      <div>
+      <div className={classes.root}>
         <HeadColumn />
         {
           store.itemsColumnsOnHomePage.map((column, i) => {

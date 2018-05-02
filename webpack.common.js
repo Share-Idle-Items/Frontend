@@ -22,7 +22,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
-      title: "Share Idle Items",
+      title: "共享闲置",
       template: './index.hbs',
       chunks: ['app'],
     }),

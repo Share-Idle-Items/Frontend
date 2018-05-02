@@ -48,9 +48,11 @@ const styles = theme => ({
 class NavigationBarOnTop extends Component {
   render() {
     const {classes} = this.props;
+    const {location, push, goBack} = this.props.store.routing;
+
     return (
       <div className={classes.root}>
-        <AppBar position="fixed" color={"primary"}>{/* primary secondary default*/}
+        <AppBar position="fixed" color={"default"}>
           <Toolbar>
             {/*title*/}
             <Typography variant="title" noWrap color="inherit">
@@ -58,11 +60,15 @@ class NavigationBarOnTop extends Component {
             </Typography>
 
             {/*home*/}
-            <Button color="inherit" onClick={this.switchToHomePage.bind(this)}><Home />首页</Button>
+            <Button color="inherit" onClick={() => {
+              push('/')
+            }}><Home />首页</Button>
 
             {/*publish*/}
             {this.props.store.hasSignedIn && (
-              <Button color="inherit" onClick={this.switchToPublishPage.bind(this)}><Edit />发布闲置</Button>
+              <Button color="inherit" onClick={() => {
+                push('/publish')
+              }}><Edit />发布闲置</Button>
             )}
 
             {/*my idle*/}
@@ -94,29 +100,19 @@ class NavigationBarOnTop extends Component {
             )}
 
             {/*user*/}
-            <Button color="inherit" onClick={this.signIn.bind(this)}><AccountCircle />登陆</Button>
+            <Button color="inherit" onClick={() => {
+              push('/user');
+            }}><AccountCircle />登陆</Button>
           </Toolbar>
         </AppBar>
       </div>
     );
   }
 
-  signIn() {
-    this.props.store.hasSignedIn = !this.props.store.hasSignedIn;
-  }
-
-  switchToHomePage() {
-    this.props.store.pageCode = this.props.store.HOMEPAGE;
-  }
-
-  switchToPublishPage() {
-    this.props.store.pageCode = this.props.store.PUBLISHPAGE;
-
-  }
-
   switchToMyItemsPage() {
     this.props.store.pageCode = this.props.store.USERPAGE;
   }
+
   switchToWantedPage() {
     this.props.store.pageCode = this.props.store.USERPAGE;
   }

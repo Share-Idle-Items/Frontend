@@ -150,6 +150,11 @@ class Store {
       ],
     },
   ];
+
+  @observable userData = {
+    portrait: img4,
+    name: '余神强无敌',
+  }
 }
 
 const STORE = new Store();

@@ -5,13 +5,11 @@ import img3 from './pic/pic3.png';
 import img4 from './pic/pic4.png';
 
 class Store {
-  @observable HOMEPAGE = 0;
-  @observable PUBLISHPAGE = 1;
-  @observable USERPAGE = 2;
-
+  // for all
   @observable AppName = "共享闲置";
   @observable hasSignedIn = false;
-  @observable pageCode = this.HOMEPAGE;
+
+  // for home page
   @observable typeColumnsOnHomePage = [
     {
       icon: "Dashboard",
@@ -151,10 +149,113 @@ class Store {
     },
   ];
 
+  // for user page
   @observable userData = {
     portrait: img4,
     name: '余神强无敌',
-  }
+  };
+  @observable myItems = [
+    {
+      id: 0,
+      title: "余神",
+      description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
+      picSrc: img1,
+      details: {
+        type: 'remained',
+        price: 98,
+        lentTimes: 4,
+        gained: 500,
+      }
+    },
+    {
+      id: 0,
+      title: "余神",
+      description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
+      picSrc: img2,
+      details: {
+        type: 'lent',
+        price: 98,
+        startTime: {
+          year: 2018,
+          month: 4,
+          day: 1,
+          hour: 13,
+          minute: 24,
+          second: 34,
+        },
+        endTime: {
+          year: 2018,
+          month: 4,
+          day: 3,
+          hour: 13,
+          minute: 24,
+          second: 34,
+        },
+      }
+    },
+    {
+      id: 0,
+      title: "余神",
+      description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
+      picSrc: img3,
+      details: {
+        type: 'borrowed',
+        price: 98,
+        startTime: {
+          year: 2018,
+          month: 4,
+          day: 1,
+          hour: 13,
+          minute: 24,
+          second: 34,
+        },
+        endTime: {
+          year: 2018,
+          month: 4,
+          day: 3,
+          hour: 13,
+          minute: 24,
+          second: 34,
+        },
+      }
+    },
+    {
+      id: 0,
+      title: "余神",
+      description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
+      picSrc: img4,
+      details: {
+        type: 'wanted',
+        price: 98,
+      }
+    },
+    {
+      id: 0,
+      title: "余神",
+      description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？For teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeest",
+      picSrc: img1,
+      details: {
+        type: 'history',
+        startTime: {
+          year: 2018,
+          month: 4,
+          day: 1,
+          hour: 13,
+          minute: 24,
+          second: 34,
+        },
+        endTime: {
+          year: 2018,
+          month: 4,
+          day: 3,
+          hour: 13,
+          minute: 24,
+          second: 34,
+        },
+        cost: 500,
+      }
+    },
+  ]
 }
 
 const STORE = new Store();

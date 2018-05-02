@@ -3,12 +3,9 @@ import { inject, observer } from 'mobx-react';
 import { Route, Switch, Redirect } from 'react-router';
 import { withStyles } from 'material-ui/styles';
 import SideBar from './SideBar';
-import ItemsAll from './ItemsAll';
-import ItemsRemained from './ItemsRemained';
-import ItemsRented from './ItemsRented';
+import Items from './Items';
 import Messages from './Messages';
 import Settings from './Settings';
-import NotFound from './NotFound';
 
 const styles = theme => ({
   root: {
@@ -22,6 +19,7 @@ const styles = theme => ({
     borderLeft: '1px black solid',
     borderRight: '1px black solid',
     paddingTop: '80px',
+    paddingBottom: '40px',
   }
 });
 
@@ -36,13 +34,15 @@ class UserPage extends Component {
       <SideBar />
       <div className={classes.content}>
         <Switch>
-          <Route path={`/user/items/all`} component={ItemsAll} />
-          <Route path={`/user/items/remained`} component={ItemsRemained} />
-          <Route path={`/user/items/rented`} component={ItemsRented} />
+          <Route path={`/user/items/all`} render={(props)=><Items typeFilter="all"/>} />
+          <Route path={`/user/items/history`} render={(props)=><Items typeFilter="history"/>} />
+          <Route path={`/user/items/remained`} render={(props)=><Items typeFilter="remained"/>} />
+          <Route path={`/user/items/lent`} render={(props)=><Items typeFilter="lent"/>} />
+          <Route path={`/user/items/borrowed`} render={(props)=><Items typeFilter="borrowed"/>} />
+          <Route path={`/user/items/wanted`} render={(props)=><Items typeFilter="wanted"/>} />
           <Route path={`/user/messages`} component={Messages} />
           <Route path={`/user/settings`} component={Settings} />
-          <Redirect exact from="/user" to="/user/items/all" />
-          <Route path="*" component={NotFound}/>
+          <Redirect from="/user" to="/user/items/all" />
         </Switch>
       </div>
     </div>);

@@ -50,7 +50,7 @@ const styles = theme => ({
     justifyContent: 'center',
     color: theme.palette.common.white,
   },
-  imageSrc: {
+  imagePic: {
     position: 'absolute',
     left: 0,
     right: 0,
@@ -59,7 +59,7 @@ const styles = theme => ({
     backgroundSize: 'cover',
     backgroundPosition: 'center 40%',
   },
-  imagePic: {
+  imageSrc: {
     width: '150px',
     height: '170px',
   },
@@ -108,8 +108,8 @@ class HeadPortrait extends Component {
 
     return (<div className={classes.root}>
       <ButtonBase focusRipple className={classes.image} focusVisibleClassName={classes.focusVisible}>
-        <span className={classes.imageSrc}>
-          <img className={classes.imagePic} src={data.portrait} />
+        <span className={classes.imagePic}>
+          <img className={classes.imageSrc} src={data.portrait} />
         </span>
         <span className={classes.imageBackdrop} />
         <span className={classes.imageButton}>

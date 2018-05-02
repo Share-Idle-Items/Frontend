@@ -73,7 +73,9 @@ class NavigationBarOnTop extends Component {
 
             {/*my idle*/}
             {this.props.store.hasSignedIn && (
-              <Button color="inherit" onClick={this.switchToMyItemsPage.bind(this)}><CardGiftcard />我的闲置</Button>
+              <Button color="inherit" onClick={() => {
+                push('/user/items/all');
+              }}><CardGiftcard />我的闲置</Button>
             )}
 
             {/*search bar*/}
@@ -96,7 +98,9 @@ class NavigationBarOnTop extends Component {
 
             {/*things wanted*/}
             {this.props.store.hasSignedIn && (
-              <Button color="inherit" onClick={this.switchToWantedPage.bind(this)}><FavoriteBorder />心愿单</Button>
+              <Button color="inherit" onClick={() => {
+                push('/user/items/wanted');
+              }}><FavoriteBorder />心愿单</Button>
             )}
 
             {/*user*/}
@@ -107,14 +111,6 @@ class NavigationBarOnTop extends Component {
         </AppBar>
       </div>
     );
-  }
-
-  switchToMyItemsPage() {
-    this.props.store.pageCode = this.props.store.USERPAGE;
-  }
-
-  switchToWantedPage() {
-    this.props.store.pageCode = this.props.store.USERPAGE;
   }
 }
 

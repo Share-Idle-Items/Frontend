@@ -85,11 +85,20 @@ class SideBar extends Component {
               <ListItem button className={classes.nested} onClick={()=>{push(`/user/items/all`)}}>
                 <ListItemText primary="全部" />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={()=>{push(`/user/items/rented`)}}>
-                <ListItemText primary="已租出的" />
+              <ListItem button className={classes.nested} onClick={()=>{push(`/user/items/lent`)}}>
+                <ListItemText primary="租出" />
               </ListItem>
               <ListItem button className={classes.nested} onClick={()=>{push(`/user/items/remained`)}}>
-                <ListItemText primary="未租出的" />
+                <ListItemText primary="仓库" />
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={()=>{push(`/user/items/borrowed`)}}>
+                <ListItemText primary="租入" />
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={()=>{push(`/user/items/wanted`)}}>
+                <ListItemText primary="心愿" />
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={()=>{push(`/user/items/history`)}}>
+                <ListItemText primary="历史" />
               </ListItem>
             </List>
           </Collapse>
@@ -97,42 +106,6 @@ class SideBar extends Component {
             <ListItemText primary="我的消息" />
           </ListItem>
           <ListItem button onClick={()=>{push(`/user/settings`)}}>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button onClick={()=>{push(`/user/test`)}}>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="账号管理" />
-          </ListItem>
-          <ListItem button>
             <ListItemText primary="账号管理" />
           </ListItem>
         </List>

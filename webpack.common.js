@@ -9,7 +9,6 @@ module.exports = {
   entry: {
     app: './index.js',
   },
-
   resolve: {
     extensions: [
       ".js", ".yml"
@@ -30,6 +29,7 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, 'dist'),
+    publicPath: "/"
   },
   module: {
     rules: [{

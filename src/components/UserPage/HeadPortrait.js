@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { withStyles } from 'material-ui/styles';
-import ButtonBase from 'material-ui/ButtonBase';
-import Typography from 'material-ui/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import ButtonBase from '@material-ui/core/ButtonBase';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -104,7 +104,7 @@ const styles = theme => ({
 class HeadPortrait extends Component {
   render() {
     const {classes} = this.props;
-    const data = this.props.store.userData;
+    const data = this.props.org_data;
 
     return (<div className={classes.root}>
       <ButtonBase focusRipple className={classes.image} focusVisibleClassName={classes.focusVisible}>

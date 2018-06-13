@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { withStyles } from 'material-ui/styles';
-import IconButton from 'material-ui/IconButton';
-import Radio from 'material-ui/Radio';
+import { withStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import Item from '../Common/Item';
+import Radio from '@material-ui/core/Radio';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
@@ -17,21 +18,13 @@ const styles = theme => ({
     position: 'relative',
     textAlign: 'center',
   },
-  img: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    margin: "auto",
-    top: 0,
-    left: 0,
-    right: 0,
-  },
   left: {
     position: 'absolute',
     margin: 'auto',
     top: 0,
     bottom: 0,
     left: 0,
+    zIndex: 100,
   },
   right: {
     position: 'absolute',
@@ -39,6 +32,7 @@ const styles = theme => ({
     top: 0,
     bottom: 0,
     right: 0,
+    zIndex: 100,
   },
   radioBar: {
     position: 'absolute',
@@ -46,6 +40,7 @@ const styles = theme => ({
     bottom: '0',
     left: 0,
     right: 0,
+    zIndex: 100,
   },
   radio: {
     width: 20,
@@ -61,34 +56,37 @@ const styles = theme => ({
 class PictureColumn extends Component {
   constructor(props) {
     super(props);
-    this.timer = setInterval(this.switchToNextPicture.bind(this), 2000);
     this.state = {
+      timeout: 3000,
       showSlider: false,
-    }
+      selected: 0
+    };
+    this.timer = setInterval(this.switchToNextPicture, this.state.timeout);
   }
 
   render() {
     const {classes} = this.props;
-    const data = this.props.store.pictureColumnOnHomePage;
+    const data = this.props.org_data;
+    const current_data = data[this.state.selected];
     return (
-      <div className={classes.root} onMouseEnter={this.stopTimer.bind(this)} onMouseLeave={this.startTimer.bind(this)}>
-        <img className={classes.img} src={data.pictures[data.selected].picSrc} />
+      <div className={classes.root} onMouseEnter={this.stopTimer} onMouseLeave={this.startTimer}>
+        <Item width={400} height={188} pic={current_data.picSrc} link={`/item/${current_data.id.substr(1)}`} style={{zIndex:0}}/>
         {this.state.showSlider && (
-          <IconButton className={classes.left} color="secondary" onClick={this.switchToPreviewPicture.bind(this)}>
+          <IconButton className={classes.left} color="secondary" onClick={this.switchToPreviewPicture}>
             <KeyboardArrowLeft />
           </IconButton>
         )}
         {this.state.showSlider && (
-          < IconButton className={classes.right} color="secondary" onClick={this.switchToNextPicture.bind(this)}>
+          < IconButton className={classes.right} color="secondary" onClick={this.switchToNextPicture}>
             <KeyboardArrowRight />
           </IconButton>
         )}
         {this.state.showSlider && (
           <div className={classes.radioBar}>
             {
-              data.pictures.map((picture, i) => {
+              data.map((picture, i) => {
                 return (
-                  <Radio checked={data.selected === i} onChange={this.handleChange}
+                  <Radio checked={this.state.selected === i} onChange={this.handleChange}
                          value={i.toString()} color="secondary" className={classes.radio}
                          icon={<RadioButtonUncheckedIcon className={classes.radioIcon} />}
                          checkedIcon={<RadioButtonCheckedIcon className={classes.radioIcon} />}
@@ -102,35 +100,34 @@ class PictureColumn extends Component {
     );
   }
 
-  stopTimer() {
+  stopTimer = () => {
     this.setState({
       showSlider: true,
     });
     clearInterval(this.timer);
-  }
+  };
 
-  startTimer() {
+  startTimer = () => {
     this.setState({
       showSlider: false,
     });
-    this.timer = setInterval(this.switchToNextPicture.bind(this), 2000);
-  }
-
-  handleChange = event => {
-    const data = this.props.store.pictureColumnOnHomePage;
-    data.selected = +(event.target.value);
+    this.timer = setInterval(this.switchToNextPicture, this.state.timeout);
   };
 
-  switchToNextPicture() {
-    const data = this.props.store.pictureColumnOnHomePage;
-    if (data.selected === data.pictures.length - 1) data.selected = 0;
-    else data.selected = data.selected + 1;
-  }
+  handleChange = event => {
+    this.setState({selected: +(event.target.value)});
+  };
 
-  switchToPreviewPicture() {
-    const data = this.props.store.pictureColumnOnHomePage;
-    if (data.selected === 0) data.selected = data.pictures.length - 1;
-    else data.selected = data.selected - 1;
+  switchToNextPicture = () => {
+    const data = this.props.org_data;
+    if (this.state.selected === data.length - 1) this.setState({selected: 0});
+    else this.setState({selected: this.state.selected + 1});
+  };
+
+  switchToPreviewPicture = () => {
+    const data = this.props.org_data;
+    if (this.state.selected === 0) this.setState({selected: data.length - 1});
+    else this.setState({selected: this.state.selected - 1});
   }
 }
 

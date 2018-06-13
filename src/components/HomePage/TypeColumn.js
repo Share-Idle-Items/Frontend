@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
-import Grid from 'material-ui/Grid';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import Dashboard from '@material-ui/icons/Dashboard';
 import Camera from '@material-ui/icons/Camera';
 import ShoppingBasket from '@material-ui/icons/ShoppingBasket';
@@ -42,13 +42,23 @@ const styles = theme => ({
 class TypeColumn extends Component {
   render() {
     const {classes, store} = this.props;
+    let data = this.props.org_data;
     return (
       <div className={classes.root}>
+        <div key={`typeColumnsOnHomePage-head`}
+             className={classes.columnWithCenterAlign}>
+          <Grid>{TypeColumn.getIcon('Dashboard')}</Grid>
+          <Grid>
+            <Typography variant="title" className={classes.columnTitle} noWrap color="inherit">
+              闲置分类
+            </Typography>
+          </Grid>
+        </div>
         {
-          store.typeColumnsOnHomePage.map((typeColumn, i) => {
+          data.map((typeColumn, i) => {
             return (
               <div key={`typeColumnsOnHomePage-${i}`}
-                   className={typeColumn.align === 'left' ? classes.columnWithLeftAlign : classes.columnWithCenterAlign}>
+                   className={classes.columnWithLeftAlign}>
                 <Grid>{TypeColumn.getIcon(typeColumn.icon)}</Grid>
                 <Grid>
                   <Typography variant="title" className={classes.columnTitle} noWrap color="inherit">
@@ -57,9 +67,9 @@ class TypeColumn extends Component {
                 </Grid>
                 {typeColumn.subtitles.map((sub, j) => {
                   return (
-                    <Button href={sub.link} size="small" className={classes.link}
+                    <Button size="small" className={classes.link}
                             key={`typeItemsOnHomePage-c${i}i${j}`}>
-                      {sub.title}
+                      {sub}
                     </Button>
                   )
                 })}

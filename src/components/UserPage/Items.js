@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Item from './Item';
 
 const styles = theme => ({
@@ -47,7 +47,7 @@ const styles = theme => ({
 class Items extends Component {
   render() {
     const {classes} = this.props;
-    const data = this.props.store.myItems;
+    const data = this.props.org_data;
 
     return (<div className={classes.root}>
       {data.map((item, i) => {

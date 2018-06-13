@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { withStyles } from 'material-ui/styles';
-import ButtonBase from 'material-ui/ButtonBase';
-import Typography from 'material-ui/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import ButtonBase from '@material-ui/core/ButtonBase';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -89,9 +89,11 @@ const styles = theme => ({
 class Item extends Component {
   render() {
     const {classes, data} = this.props;
+    const {location, goBack, push} = this.props.store.routing;
 
     return (<div className={classes.root}>
-      <ButtonBase focusRipple className={classes.btnBase} focusVisibleClassName={classes.focusVisible}>
+      <ButtonBase focusRipple className={classes.btnBase} focusVisibleClassName={classes.focusVisible}
+                  onClick={()=>{push(`/item/${data.id}`)}}>
         <span className={classes.image}>
           <img className={classes.imageSrc} src={data.picSrc} />
         </span>

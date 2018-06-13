@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { Route, Switch, Redirect } from 'react-router';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import SideBar from './SideBar';
-import Items from './Items';
-import Messages from './Messages';
-import Settings from './Settings';
+import {Items} from './Items';
+import {Messages} from './Messages';
+import {Settings} from './Settings';
 
 const styles = theme => ({
   root: {
+    height: innerHeight - 190,
     display: 'flex',
     width: window.innerWidth * 0.8,
-    height: window.innerHeight,
     marginLeft: window.innerWidth * 0.1,
   },
   content: {
@@ -27,22 +27,26 @@ const styles = theme => ({
 @observer
 class UserPage extends Component {
   render() {
-    const { classes } = this.props;
-    const {location, push, goBack} = this.props.store.routing;
-
+    const { classes, store } = this.props;
+    const {location, push, goBack} = store.routing;
+    const data = store.getUserInfo();
+    if(data === undefined) {
+      push('/home');
+      return (<div/>);
+    }
+    console.log(SideBar);
     return (<div className={classes.root}>
-      <SideBar />
+      <SideBar org_data={data.user}/>
       <div className={classes.content}>
         <Switch>
-          <Route path={`/user/items/all`} render={(props)=><Items typeFilter="all"/>} />
-          <Route path={`/user/items/history`} render={(props)=><Items typeFilter="history"/>} />
-          <Route path={`/user/items/remained`} render={(props)=><Items typeFilter="remained"/>} />
-          <Route path={`/user/items/lent`} render={(props)=><Items typeFilter="lent"/>} />
-          <Route path={`/user/items/borrowed`} render={(props)=><Items typeFilter="borrowed"/>} />
-          <Route path={`/user/items/wanted`} render={(props)=><Items typeFilter="wanted"/>} />
+          <Route path={`/user/items/history`} render={(props)=><Items org_data={data.myItems} typeFilter="history"/>} />
+          <Route path={`/user/items/remained`} render={(props)=><Items org_data={data.myItems} typeFilter="remained"/>} />
+          <Route path={`/user/items/lent`} render={(props)=><Items org_data={data.myItems} typeFilter="lent"/>} />
+          <Route path={`/user/items/borrowed`} render={(props)=><Items org_data={data.myItems} typeFilter="borrowed"/>} />
+          <Route path={`/user/items/wanted`} render={(props)=><Items org_data={data.myItems} typeFilter="wanted"/>} />
           <Route path={`/user/messages`} component={Messages} />
           <Route path={`/user/settings`} component={Settings} />
-          <Redirect from="/user" to="/user/items/all" />
+          <Redirect from="/user" to="/user/items/lent" />
         </Switch>
       </div>
     </div>);

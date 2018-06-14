@@ -21,7 +21,7 @@ class ItemPage extends Component {
   render() {
     const {classes, store} = this.props;
     const {location, push, goBack} = store.routing;
-    const item_id = location.pathname.substr(6);
+    const item_id = this.props.match.params.id;
     if(item_id === undefined || item_id === '') return(<div/>);
     const data = store.getItemInfo(item_id);
 

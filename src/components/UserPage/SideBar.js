@@ -5,9 +5,6 @@ import HeadPortrait from './HeadPortrait';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
 
 const styles = theme => ({
   root: {
@@ -79,39 +76,16 @@ class SideBar extends Component {
       <HeadPortrait org_data={data} />
       <div className={classes.functionList}>
         <List component="nav">
-          <ListItem button onClick={this.handleClick}>
-            <ListItemText primary="我的宝贝" />
-            {this.state.open ? <ExpandLess /> : <ExpandMore />}
+          <ListItem button onClick={() => {
+            push(`/user/my_items`)
+          }}>
+            <ListItemText primary="我的共享" />
           </ListItem>
-          <Collapse in={this.state.open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => {
-                push(`/user/items/lent`)
-              }}>
-                <ListItemText primary="租出" />
-              </ListItem>
-              <ListItem button className={classes.nested} onClick={() => {
-                push(`/user/items/remained`)
-              }}>
-                <ListItemText primary="仓库" />
-              </ListItem>
-              <ListItem button className={classes.nested} onClick={() => {
-                push(`/user/items/borrowed`)
-              }}>
-                <ListItemText primary="租入" />
-              </ListItem>
-              <ListItem button className={classes.nested} onClick={() => {
-                push(`/user/items/wanted`)
-              }}>
-                <ListItemText primary="心愿" />
-              </ListItem>
-              <ListItem button className={classes.nested} onClick={() => {
-                push(`/user/items/history`)
-              }}>
-                <ListItemText primary="历史" />
-              </ListItem>
-            </List>
-          </Collapse>
+          <ListItem button onClick={() => {
+            push(`/user/my_usages`)
+          }}>
+            <ListItemText primary="我的使用" />
+          </ListItem>
           <ListItem button onClick={() => {
             push(`/user/messages`)
           }}>

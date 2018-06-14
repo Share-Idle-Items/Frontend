@@ -8,8 +8,9 @@ import HomePage from '../HomePage';
 import PublishPage from '../PublishPage';
 import UserPage from '../UserPage';
 import ItemPage from '../ItemPage';
-import LogIn from '../UserPage/LogIn';
-import Register from '../UserPage/Register';
+import LogIn from '../LogIn';
+import Register from '../Register';
+import ListPage from '../ListPage';
 
 const styles = theme => ({});
 
@@ -26,9 +27,10 @@ class App extends Component {
           <Route path="/home" component={HomePage} />
           <Route path="/publish" component={PublishPage} />
           <Route path="/user" component={UserPage} />
-          <Route path="/item" component={ItemPage} />
+          <Route path="/item/:id" component={ItemPage} />
           <Route path="/login" component={LogIn} />
           <Route path="/register" component={Register} />
+          <Route path="/search/:key/:price/:time/:city" component={ListPage} />
           <Redirect from="/" to="/home"/>
         </Switch>
         <CopyRight />

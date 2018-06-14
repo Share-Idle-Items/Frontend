@@ -11,7 +11,6 @@ import TextField from '@material-ui/core/TextField';
 import Home from '@material-ui/icons/Home';
 import Edit from '@material-ui/icons/Edit';
 import CardGiftcard from '@material-ui/icons/CardGiftcard';
-import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Search from '@material-ui/icons/Search';
 
@@ -46,6 +45,27 @@ const styles = theme => ({
 @inject('store')
 @observer
 class NavigationBarOnTop extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      search: '',
+    }
+  }
+
+  keyListener = (event) => {
+    if(event.keyCode === 13) this.searchKey();
+  };
+
+  searchKey = () => {
+    this.props.store.routing.push('/search/k'+this.state.search+'/p/t/c');
+  };
+
+  changeSearch = (event) => {
+    this.setState({
+      search: event.target.value,
+    })
+  };
+
   render() {
     const {classes, store} = this.props;
     const {location, push, goBack} = store.routing;
@@ -80,7 +100,7 @@ class NavigationBarOnTop extends Component {
 
             {/*search bar*/}
             <Grid item>
-              <IconButton color="inherit">
+              <IconButton color="inherit" onClick={this.searchKey}>
                 <Search />
               </IconButton>
             </Grid>
@@ -93,15 +113,10 @@ class NavigationBarOnTop extends Component {
                   input: classes.bootstrapInput,
                 },
               }}
+              onChange={this.changeSearch}
+              onKeyDown={this.keyListener}
             />
             <div className={classes.flex} />
-
-            {/*things wanted*/}
-            {store.user !== undefined && (
-              <Button color="inherit" onClick={() => {
-                push('/user/items/wanted');
-              }}><FavoriteBorder />心愿单</Button>
-            )}
 
             {/*user*/}
             <Button color="inherit" onClick={() => {

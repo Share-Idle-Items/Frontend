@@ -11,37 +11,40 @@ class Store {
     // base data
     let itemList = [
       {
-        id: 'i0',
+        front_id: 'i0',
         title: '山地自行车',
         description: '九成新的山地自行车，好看又好骑！',
         tags: ['运动', '生活'],
         owner: 'u0',
         price: 15,
         deposit: 100,
+        city: ['浙江', '杭州'],
         availableTime: 3,
         images: ['i0_0.jpg', 'i0_1.jpg'],
         transfer: 4,
       },
       {
-        id: 'i1',
+        front_id: 'i1',
         title: '相机',
         description: '索尼相机',
         tags: ['摄影', '生活'],
         owner: 'u1',
         price: 20,
         deposit: 100,
+        city: ['浙江', '杭州', '西湖区'],
         availableTime: 3,
         images: ['i1_0.jpg'],
         transfer: 7,
       },
       {
-        id: 'i2',
+        front_id: 'i2',
         title: '连衣裙',
         description: '租的人穿了都说好！',
         tags: ['服装', '生活'],
         owner: 'u1',
         price: 30,
         deposit: 100,
+        city: ['浙江', '杭州', '滨江区'],
         availableTime: 3,
         images: ['i2_0.jpg'],
         transfer: 3,
@@ -49,7 +52,7 @@ class Store {
     ];
     let userList = [
       {
-        id: 'u0',
+        front_id: 'u0',
         user_name: '兔子喵喵叫',
         password: '11235813',
         phone: '18866666666',
@@ -60,7 +63,7 @@ class Store {
         image: 'u0.jpg',
       },
       {
-        id: 'u1',
+        front_id: 'u1',
         user_name: '橘猫爱吃草',
         password: '21345589',
         phone: '18823333333',
@@ -73,20 +76,12 @@ class Store {
     ];
     let orderList = [
       {
-        id: 'o0',
+        front_id: 'o0',
         borrower: 'u1',
         lender: 'u0',
         item: 'i0',
         status: this.FINISHED,
         time: 1528348893,
-      }
-    ];
-    let serverList = [
-      {
-        id: 's0',
-        user_name: '客服007',
-        password: 'W75Ec26N',
-        score: 100,
       }
     ];
     let recordList = [
@@ -1726,11 +1721,14 @@ class Store {
     ];
 
     this.findItem = (id) => itemList[id];
+    this.getAllItems = () => {
+      return JSON.parse(JSON.stringify(itemList));
+    };
     this.findUser = (id) => userList[id];
     this.findUserIdByName = (name) => {
       for (const user of userList)
         if (user.user_name === name)
-          return user.id.substr(1);
+          return user.front_id.substr(1);
       return -1;
     };
     this.findSubCity = (cityList) => {
@@ -1751,7 +1749,7 @@ class Store {
     this.newUser = (name, password) => {
       let len = userList.length;
       userList[len] = {
-        id: 'u' + len,
+        front_id: 'u' + len,
         user_name: name,
         password: password,
         phone: undefined,
@@ -1961,12 +1959,101 @@ class Store {
   }
 
   getItemInfo(id) {
+    if(id === undefined || id === null || id.length === 0) return undefined;
     const org_data = this.findItem(id);
     let re_data = JSON.parse(JSON.stringify(org_data));
     for (const [i, pic] of org_data.images.entries()) {
       re_data.images[i] = require('./pic/' + pic);
+      re_data.id = re_data.front_id;
     }
     return re_data;
+  }
+
+  getItems(key, price, time, city) {
+    let list = this.getAllItems();
+
+    function matchKey(custom, origin) {
+      // console.log("key", custom, origin);
+      if(custom === '' || custom === undefined || custom === null) return 1;
+      const len = custom.length;
+      const val = 1 / len;
+      let score = 0;
+      for (let chr of custom)
+        if (origin.indexOf(chr) !== -1)
+          score += val;
+      // console.log(score);
+      return score;
+    }
+
+    function matchRange(custom, origin) {
+      // console.log('range', custom, origin);
+      if(custom === '' || custom === undefined || custom === null) return 1;
+      const range = custom.split('~');
+      // console.log(+range[0], +range[1], origin);
+      if(+range[0] <= origin && (origin <= +range[1] || +range[1] === 0)) return 1;
+      else return 0;
+    }
+
+    function matchList(custom, origin) {
+      // console.log('list', custom, origin);
+      if(custom === '' || custom === undefined || custom === null) return 1;
+      const cityList = custom.split(' ');
+      // console.log(cityList);
+      for (let i = 0; i < cityList.length; i++) {
+        // console.log(i, origin[i], cityList[i], origin[i] != cityList[i]);
+        if (origin[i] === undefined || origin[i] === null || origin[i] === '') return 1 - 1 / Math.pow(2, i);
+        else if (origin[i] !== cityList[i]) return 0;
+      }
+      return 1;
+    }
+
+    for(let i = list.length - 1; i >= 0; i--) {
+      let item = list[i];
+      let is_match = true;
+      let match_level;
+      item.id = item.front_id;
+      item.matchLevel = 0;
+
+      match_level = matchKey(key, item.title);
+      if (match_level !== 0) {
+        item.matchLevel += 5 * match_level;
+      } else {
+        is_match = false;
+        for (const tag of item.tags) {
+          match_level = matchKey(key, tag);
+          if(match_level !== 0) {
+            is_match = true;
+            item.matchLevel += 3* match_level;
+          }
+        }
+      }
+
+      if (is_match) {
+        match_level = matchRange(price, item.price);
+        if(match_level !== 0) item.matchLevel += 3 * match_level;
+        else is_match = false;
+      }
+
+      if (is_match) {
+        match_level = matchRange(time, item.availableTime);
+        if(match_level !== 0) item.matchLevel += match_level;
+        else is_match = false;
+      }
+
+      if (is_match) {
+        match_level = matchList(city, item.city);
+        if(match_level !== 0) item.matchLevel += match_level;
+        else is_match = false;
+      }
+
+      if (!is_match) list.splice(i, 1);
+      else {
+        for (let [i, pic] of item.images.entries()) {
+          item.images[i] = require('./pic/'+pic);
+        }
+      }
+    }
+    return list;
   }
 
   // to confirm user
@@ -2003,8 +2090,11 @@ class Store {
 
   getTransferMethodByTransferCode(code) {
     let str = '';
+    // noinspection JSBitwiseOperatorUsage
     if (code & this.GET_BY_SELF) str += '自取 ';
+    // noinspection JSBitwiseOperatorUsage
     if (code & this.SEND_BY_OWNER) str += '邮寄 ';
+    // noinspection JSBitwiseOperatorUsage
     if (code & this.TRANSFER_BY_DATE) str += '面交 ';
     return str;
   }

@@ -10,7 +10,7 @@ const styles = theme => ({
     width: '200px',
     height: '240px',
     top: '80px',
-    borderBottom: '1px black solid'
+    borderBottom: '1px #40aaef solid'
   },
   image: {
     position: 'absolute',

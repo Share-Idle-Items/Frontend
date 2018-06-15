@@ -5,6 +5,7 @@ import Item from './Item';
 
 const styles = theme => ({
   root: {
+    width: innerWidth * 0.8 - 200,
     height: window.innerHeight - 80,
     overflowY: 'auto',
     overflowX: 'hidden',
@@ -13,7 +14,7 @@ const styles = theme => ({
       height: '10px',
     },
     '&::-webkit-scrollbar-button': {
-      display:'none',
+      display: 'none',
     },
     '&::-webkit-scrollbar-track': {
       WebkitBoxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.3)',
@@ -48,12 +49,9 @@ class Items extends Component {
   render() {
     const {classes} = this.props;
     const data = this.props.org_data;
-
     return (<div className={classes.root}>
-      {data.map((item, i) => {
-        return (this.props.typeFilter === 'all' || item.details.type === this.props.typeFilter) && (
-          <Item data={item} key={`items-${i}`} />
-        )
+      {data.map((item, i)=>{
+        return <Item key={'item'+i} org_data={item}/>
       })}
     </div>);
   }

@@ -53,6 +53,10 @@ const styles = theme => ({
   nested: {
     paddingLeft: theme.spacing.unit * 7,
   },
+  chosen: {
+    backgroundColor: '#40aaef',
+  },
+  normal: {},
 });
 
 @inject('store')
@@ -60,12 +64,10 @@ const styles = theme => ({
 class SideBar extends Component {
   constructor(props) {
     super(props);
-    this.state = {open: true};
+    this.state = {
+      choice: 0,
+    }
   }
-
-  handleClick = () => {
-    this.setState({open: !this.state.open});
-  };
 
   render() {
     const {classes} = this.props;
@@ -76,23 +78,27 @@ class SideBar extends Component {
       <HeadPortrait org_data={data} />
       <div className={classes.functionList}>
         <List component="nav">
-          <ListItem button onClick={() => {
-            push(`/user/my_items`)
+          <ListItem button classes={{root: this.state.choice === 0 ? classes.chosen: classes.normal}} onClick={() => {
+            push(`/user/my_items`);
+            this.setState({choice: 0});
           }}>
             <ListItemText primary="我的共享" />
           </ListItem>
-          <ListItem button onClick={() => {
-            push(`/user/my_usages`)
+          <ListItem button classes={{root: this.state.choice === 1 ? classes.chosen: classes.normal}} onClick={() => {
+            push(`/user/my_usages`);
+            this.setState({choice: 1});
           }}>
             <ListItemText primary="我的使用" />
           </ListItem>
-          <ListItem button onClick={() => {
-            push(`/user/messages`)
+          <ListItem button classes={{root: this.state.choice === 2 ? classes.chosen: classes.normal}} onClick={() => {
+            push(`/user/messages`);
+            this.setState({choice: 2});
           }}>
             <ListItemText primary="我的消息" />
           </ListItem>
-          <ListItem button onClick={() => {
-            push(`/user/settings`)
+          <ListItem button classes={{root: this.state.choice === 3 ? classes.chosen: classes.normal}} onClick={() => {
+            push(`/user/settings`);
+            this.setState({choice: 3});
           }}>
             <ListItemText primary="账号管理" />
           </ListItem>

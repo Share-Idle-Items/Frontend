@@ -1,156 +1,112 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { withStyles } from '@material-ui/core/styles';
-import ButtonBase from '@material-ui/core/ButtonBase';
-import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
   root: {
     position: 'relative',
-    margin: '20px 0',
-    padding: '0 5%',
-    height: '200px',
-    width: '90%',
-  },
-  btnBase: {
-    position: 'absolute',
-    margin: 'auto',
-    left: 0,
-    right: 0,
-    top: 0,
+    margin: '20px 10%',
+    height: '180px',
     width: '80%',
-    height: '200px',
-    backgroundColor: 'rgb(94, 87, 85)',
-    [theme.breakpoints.down('xs')]: {
-      width: '100% !important', // Overrides inline-style
-      height: 100,
-    },
-    '&:hover, &$focusVisible': {
-      zIndex: 1,
-      '& $imageBackdrop': {
-        opacity: 0.4,
-      },
-    },
+    padding: 0,
   },
-  imageBackdrop: {
+  buttonBase: {
+    width: '100%',
+    height: '100%',
+    margin: 0,
+    padding: 0,
+    display: 'flex',
+  },
+  imgArea: {
     position: 'absolute',
-    left: 170,
-    right: 0,
     top: 0,
-    bottom: 0,
-    backgroundColor: theme.palette.common.black,
-    opacity: 0,
-    transition: theme.transitions.create('opacity'),
-  },
-  focusVisible: {},
-  image: {
-    position: 'absolute',
     left: 0,
-    top: 0,
-    bottom: 0,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center 40%',
+    width: '180px',
+    height: '180px',
+    borderRight: '1px #afafaf solid',
   },
-  imageSrc: {
-    width: '170px',
-    height: '200px',
-  },
-  information: {
+  imgSrc: {
     position: 'absolute',
-    left: 170,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%,-50%)',
+    maxHeight: '80%',
+    maxWidth: '80%',
+  },
+  info: {
+    position: 'absolute',
+    left: '180px',
     top: 0,
-    height: 180,
-    padding: 10,
-  },
-  title: {
-    display: 'flex',
-    margin: 5,
-    color: theme.palette.common.white,
-  },
-  description: {
-    display: 'flex',
-    margin: 5,
-    color: theme.palette.common.white,
-  },
-  details: {
-    display: 'flex',
-    margin: 5,
-    color: theme.palette.common.white,
-  },
-  text: {
-    whiteSpace: 'nowrap',
-    maxWidth: '750px',
-    overflow: 'hidden',
+    height: '180px',
+    '& h3': {
+      marginLeft: '40px',
+      textAlign: 'left',
+      fontWeight: '5px',
+      fontSize: '25px',
+    },
+    '& p': {
+      marginLeft: '40px',
+      textAlign: 'left',
+      fontWeight: '2px',
+      fontSize: '16px',
+    }
   }
 });
 
 @inject('store')
 @observer
 class Item extends Component {
+  getInfo = (data) => {
+    const store = this.props.store;
+    let item_id, title, price, time, status, image;
+    switch(data.id[0]) {
+      case 'o':
+        item_id = +data.item.substr(1);
+        const itemInfo = store.getItemInfo(item_id);
+        title = itemInfo.title;
+        price = data.price;
+        time = data.use_time;
+        status = store.getOrderStatusNameByCode(data.status);
+        image = itemInfo.images[0];
+        break;
+      case 'i':
+        item_id = +data.id.substr(1);
+        title = data.title;
+        price = data.price;
+        time = data.availableTime;
+        status = store.getItemStatusNameByCode(data.status);
+        image = data.images[0];
+        break;
+    }
+    return {
+      item_id: item_id,
+      title: title,
+      price: price,
+      time: time,
+      status: status,
+      image: image,
+    };
+  };
   render() {
-    const {classes, data} = this.props;
+    const {classes} = this.props;
     const {location, goBack, push} = this.props.store.routing;
-
-    return (<div className={classes.root}>
-      <ButtonBase focusRipple className={classes.btnBase} focusVisibleClassName={classes.focusVisible}
-                  onClick={()=>{push(`/item/${data.id}`)}}>
-        <span className={classes.image}>
-          <img className={classes.imageSrc} src={data.picSrc} />
-        </span>
-        <span className={classes.imageBackdrop} />
-        <div className={classes.information}>
-          <span className={classes.title}>
-            <Typography nowrap component="span" variant="display1" color="inherit" className={classes.text}>
-              {data.title}
-            </Typography>
-          </span>
-          <span className={classes.description}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              {data.description}
-            </Typography>
-          </span>
-          {['lent', 'remained', 'borrowed', 'wanted'].includes(data.details.type) && <span className={classes.details}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              价格：￥{data.details.price}/天
-            </Typography>
-          </span>}
-          {['remained'].includes(data.details.type) && <span className={classes.details}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              借出次数：{data.details.lentTimes}
-            </Typography>
-          </span>}
-          {['remained'].includes(data.details.type) && <span className={classes.details}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              赚取：￥{data.details.gained}
-            </Typography>
-          </span>}
-          {['lent'].includes(data.details.type) && <span className={classes.details}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              借出时间：{data.details.startTime.year}年{data.details.startTime.month}月{data.details.startTime.day}日　
-              {data.details.startTime.hour}:{data.details.startTime.minute}:{data.details.startTime.second}
-            </Typography>
-          </span>}
-          {['borrowed', 'history'].includes(data.details.type) && <span className={classes.details}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              借入时间：{data.details.startTime.year}年{data.details.startTime.month}月{data.details.startTime.day}日　
-              {data.details.startTime.hour}:{data.details.startTime.minute}:{data.details.startTime.second}
-            </Typography>
-          </span>}
-          {['lent', 'borrowed'].includes(data.details.type) && <span className={classes.details}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              最晚归还：{data.details.endTime.year}年{data.details.endTime.month}月{data.details.endTime.day}日　
-              {data.details.endTime.hour}:{data.details.endTime.minute}:{data.details.endTime.second}
-            </Typography>
-          </span>}
-          {['history'].includes(data.details.type) && <span className={classes.details}>
-            <Typography nowrap component="span" variant="subheading" color="inherit" className={classes.text}>
-              归还时间：{data.details.endTime.year}年{data.details.endTime.month}月{data.details.endTime.day}日　
-              {data.details.endTime.hour}:{data.details.endTime.minute}:{data.details.endTime.second}
-            </Typography>
-          </span>}
+    const data = this.props.org_data;
+    const restruct = this.getInfo(data);
+    return (<Paper className={classes.root} elevation={4}>
+      <Button className={classes.buttonBase} onClick={()=>{push('/item/'+restruct.item_id)}}>
+        <div className={classes.imgArea}>
+          <img className={classes.imgSrc} src={restruct.image} />
         </div>
-      </ButtonBase>
-    </div>);
+        <div className={classes.info}>
+          <h3>{restruct.title}</h3>
+          <p>价　　格：￥{restruct.price}/天</p>
+          <p>剩余时间：{restruct.time}天</p>
+          <p>当前状态：{restruct.status}</p>
+        </div>
+      </Button>
+    </Paper>);
   }
 }
 

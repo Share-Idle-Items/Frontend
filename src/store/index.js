@@ -4,7 +4,14 @@ class Store {
   // for app
   @observable AppName = "共享闲置";
   // status code
-  @observable FINISHED = 0;
+  @observable ORDER_CONNECT = 0;
+  @observable ORDER_LENT = 1;
+  @observable ORDER_BACK = 2;
+  @observable ORDER_FINISH = 3;
+  @observable ORDER_OUTOFTIME = 4;
+  @observable ITEM_PUBLISH = 0;
+  @observable ITEM_HOLD = 1;
+  @observable ITEM_LENT = 2;
   @observable MESSAGE = 0;
 
   constructor() {
@@ -22,6 +29,7 @@ class Store {
         availableTime: 3,
         images: ['i0_0.jpg', 'i0_1.jpg'],
         transfer: 4,
+        status: this.ITEM_PUBLISH,
       },
       {
         front_id: 'i1',
@@ -35,6 +43,7 @@ class Store {
         availableTime: 3,
         images: ['i1_0.jpg'],
         transfer: 7,
+        status: this.ITEM_LENT,
       },
       {
         front_id: 'i2',
@@ -45,9 +54,10 @@ class Store {
         price: 30,
         deposit: 100,
         city: ['浙江', '杭州', '滨江区'],
-        availableTime: 3,
+        availableTime: 0,
         images: ['i2_0.jpg'],
         transfer: 3,
+        status: this.ITEM_HOLD,
       },
     ];
     let userList = [
@@ -80,8 +90,9 @@ class Store {
         borrower: 'u1',
         lender: 'u0',
         item: 'i0',
-        status: this.FINISHED,
+        status: this.ORDER_FINISH,
         time: 1528348893,
+        use_time: 4,
       }
     ];
     let recordList = [
@@ -1733,14 +1744,14 @@ class Store {
     };
     this.findSubCity = (cityList) => {
       let list = arrCity;
-      for(let i = 0; i < cityList.length; i++) {
-        if(list === undefined) return [];
+      for (let i = 0; i < cityList.length; i++) {
+        if (list === undefined) return [];
         const name = cityList[i];
-        for(let item of list)
-          if(item.name === name)
+        for (let item of list)
+          if (item.name === name)
             list = item.sub;
       }
-      if(list === undefined) return [];
+      if (list === undefined) return [];
       else return list;
     };
     this.checkUserPassword = (id, password) => {
@@ -1760,7 +1771,10 @@ class Store {
         image: undefined,
       };
       return len;
-    }
+    };
+    this.getAllOrders = () => {
+      return JSON.parse(JSON.stringify(orderList));
+    };
   }
 
   // for home page
@@ -1794,109 +1808,7 @@ class Store {
   ];
 
   // for user page
-  user = 0;
-  // myItems = [
-  //   {
-  //     id: 0,
-  //     title: "余神",
-  //     description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
-  //     picSrc: this.imgList[1],
-  //     details: {
-  //       type: 'remained',
-  //       price: 98,
-  //       lentTimes: 4,
-  //       gained: 500,
-  //     }
-  //   },
-  //   {
-  //     id: 0,
-  //     title: "余神",
-  //     description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
-  //     picSrc: this.imgList[2],
-  //     details: {
-  //       type: 'lent',
-  //       price: 98,
-  //       startTime: {
-  //         year: 2018,
-  //         month: 4,
-  //         day: 1,
-  //         hour: 13,
-  //         minute: 24,
-  //         second: 34,
-  //       },
-  //       endTime: {
-  //         year: 2018,
-  //         month: 4,
-  //         day: 3,
-  //         hour: 13,
-  //         minute: 24,
-  //         second: 34,
-  //       },
-  //     }
-  //   },
-  //   {
-  //     id: 0,
-  //     title: "余神",
-  //     description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
-  //     picSrc: this.imgList[3],
-  //     details: {
-  //       type: 'borrowed',
-  //       price: 98,
-  //       startTime: {
-  //         year: 2018,
-  //         month: 4,
-  //         day: 1,
-  //         hour: 13,
-  //         minute: 24,
-  //         second: 34,
-  //       },
-  //       endTime: {
-  //         year: 2018,
-  //         month: 4,
-  //         day: 3,
-  //         hour: 13,
-  //         minute: 24,
-  //         second: 34,
-  //       },
-  //     }
-  //   },
-  //   {
-  //     id: 0,
-  //     title: "余神",
-  //     description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？",
-  //     picSrc: this.imgList[0],
-  //     details: {
-  //       type: 'wanted',
-  //       price: 98,
-  //     }
-  //   },
-  //   {
-  //     id: 0,
-  //     title: "余神",
-  //     description: "震惊！某男子深夜露出神秘微笑！究竟是人性的扭曲还是道德的沦丧？For teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeest",
-  //     picSrc: this.imgList[1],
-  //     details: {
-  //       type: 'history',
-  //       startTime: {
-  //         year: 2018,
-  //         month: 4,
-  //         day: 1,
-  //         hour: 13,
-  //         minute: 24,
-  //         second: 34,
-  //       },
-  //       endTime: {
-  //         year: 2018,
-  //         month: 4,
-  //         day: 3,
-  //         hour: 13,
-  //         minute: 24,
-  //         second: 34,
-  //       },
-  //       cost: 500,
-  //     }
-  //   },
-  // ];
+  user = 1;
 
   // get data
   findId(id) {
@@ -1945,7 +1857,20 @@ class Store {
     if (user_id === undefined) user_id = this.user;
     if (user_id === undefined) return undefined;
     const user_info = this.findUser(user_id);
-    const items = [];
+    const items = this.getAllItems();
+    for (let i = items.length - 1; i >= 0; i--) {
+      items[i].id = items[i].front_id;
+      if (+items[i].owner.substr(1) !== +user_id) items.splice(i, 1);
+      else {
+        items[i].images[0] = require('./pic/'+items[i].images[0]);
+      }
+    }
+    const usages = this.getAllOrders();
+    for (let i = usages.length - 1; i >= 0; i--) {
+      usages[i].id = usages[i].front_id;
+      if (+usages[i].borrower.substr(1) !== +user_id)
+        usages.splice(i, 1);
+    }
     return {
       user: {
         id: user_id,
@@ -1955,11 +1880,12 @@ class Store {
         city: user_info.city,
       },
       myItems: items,
+      myUsages: usages,
     };
   }
 
   getItemInfo(id) {
-    if(id === undefined || id === null || id.length === 0) return undefined;
+    if (id === undefined || id === null || id.length === 0) return undefined;
     const org_data = this.findItem(id);
     let re_data = JSON.parse(JSON.stringify(org_data));
     for (const [i, pic] of org_data.images.entries()) {
@@ -1974,7 +1900,7 @@ class Store {
 
     function matchKey(custom, origin) {
       // console.log("key", custom, origin);
-      if(custom === '' || custom === undefined || custom === null) return 1;
+      if (custom === '' || custom === undefined || custom === null) return 1;
       const len = custom.length;
       const val = 1 / len;
       let score = 0;
@@ -1987,16 +1913,16 @@ class Store {
 
     function matchRange(custom, origin) {
       // console.log('range', custom, origin);
-      if(custom === '' || custom === undefined || custom === null) return 1;
+      if (custom === '' || custom === undefined || custom === null) return 1;
       const range = custom.split('~');
       // console.log(+range[0], +range[1], origin);
-      if(+range[0] <= origin && (origin <= +range[1] || +range[1] === 0)) return 1;
+      if (+range[0] <= origin && (origin <= +range[1] || +range[1] === 0)) return 1;
       else return 0;
     }
 
     function matchList(custom, origin) {
       // console.log('list', custom, origin);
-      if(custom === '' || custom === undefined || custom === null) return 1;
+      if (custom === '' || custom === undefined || custom === null) return 1;
       const cityList = custom.split(' ');
       // console.log(cityList);
       for (let i = 0; i < cityList.length; i++) {
@@ -2007,7 +1933,7 @@ class Store {
       return 1;
     }
 
-    for(let i = list.length - 1; i >= 0; i--) {
+    for (let i = list.length - 1; i >= 0; i--) {
       let item = list[i];
       let is_match = true;
       let match_level;
@@ -2021,35 +1947,35 @@ class Store {
         is_match = false;
         for (const tag of item.tags) {
           match_level = matchKey(key, tag);
-          if(match_level !== 0) {
+          if (match_level !== 0) {
             is_match = true;
-            item.matchLevel += 3* match_level;
+            item.matchLevel += 3 * match_level;
           }
         }
       }
 
       if (is_match) {
         match_level = matchRange(price, item.price);
-        if(match_level !== 0) item.matchLevel += 3 * match_level;
+        if (match_level !== 0) item.matchLevel += 3 * match_level;
         else is_match = false;
       }
 
       if (is_match) {
         match_level = matchRange(time, item.availableTime);
-        if(match_level !== 0) item.matchLevel += match_level;
+        if (match_level !== 0) item.matchLevel += match_level;
         else is_match = false;
       }
 
       if (is_match) {
         match_level = matchList(city, item.city);
-        if(match_level !== 0) item.matchLevel += match_level;
+        if (match_level !== 0) item.matchLevel += match_level;
         else is_match = false;
       }
 
       if (!is_match) list.splice(i, 1);
       else {
         for (let [i, pic] of item.images.entries()) {
-          item.images[i] = require('./pic/'+pic);
+          item.images[i] = require('./pic/' + pic);
         }
       }
     }
@@ -2097,6 +2023,32 @@ class Store {
     // noinspection JSBitwiseOperatorUsage
     if (code & this.TRANSFER_BY_DATE) str += '面交 ';
     return str;
+  }
+
+  getOrderStatusNameByCode(code) {
+    switch (code) {
+      case this.ORDER_CONNECT:
+        return '已下订单，未交出物品';
+      case this.ORDER_LENT:
+        return '已借出，未归还';
+      case this.ORDER_BACK:
+        return '已归还，未付款';
+      case this.ORDER_FINISH:
+        return '已完成';
+      case this.ORDER_OUTOFTIME:
+        return '超时';
+    }
+  }
+
+  getItemStatusNameByCode(code) {
+    switch (code) {
+      case this.ITEM_PUBLISH:
+        return '发布中';
+      case this.ITEM_HOLD:
+        return '未发布';
+      case this.ITEM_LENT:
+        return '已借出';
+    }
   }
 }
 

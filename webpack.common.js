@@ -9,7 +9,6 @@ module.exports = {
   entry: {
     app: './index.js',
   },
-
   resolve: {
     extensions: [
       ".js", ".yml"
@@ -22,7 +21,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
-      title: "Shard Idle items",
+      title: "共享闲置",
       template: './index.hbs',
       chunks: ['app'],
     }),
@@ -30,6 +29,7 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, 'dist'),
+    publicPath: "/"
   },
   module: {
     rules: [{
@@ -50,6 +50,11 @@ module.exports = {
       }, {
         loader: "yaml-loader",
       }],
-    }]
+    }, {
+      test: /\.(jpe?g|png|gif|mp3)$/i,
+      exclude: /node_modules/,
+      loaders: ['file-loader']
+    },
+    ]
   }
 };

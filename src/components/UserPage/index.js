@@ -9,7 +9,7 @@ import Settings from './Settings';
 
 const styles = theme => ({
   root: {
-    height: innerHeight,
+    minHeight: innerHeight - 190,
     display: 'flex',
     width: window.innerWidth * 0.8,
     marginLeft: window.innerWidth * 0.1,
@@ -41,7 +41,7 @@ class UserPage extends Component {
           <Route path={`/user/my_items`} render={(props)=><Items org_data={data.myItems}/>} />
           <Route path={`/user/my_usages`} render={(props)=><Items org_data={data.myUsages}/>} />
           <Route path={`/user/messages`} component={(props)=><Messages />} />
-          <Route path={`/user/settings`} component={(props)=><Settings />} />
+          <Route path={`/user/settings`} component={(props)=><Settings org_data={data.user}/>} />
           <Redirect from="/user" to="/user/my_items" />
         </Switch>
       </div>

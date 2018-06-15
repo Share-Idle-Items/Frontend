@@ -1775,6 +1775,16 @@ class Store {
     this.getAllOrders = () => {
       return JSON.parse(JSON.stringify(orderList));
     };
+    this.updateUserInfo = (new_info) => {
+      if(new_info.password !== undefined) userList[this.user].password = new_info.password;
+      if(new_info.phone !== undefined) userList[this.user].phone = new_info.phone;
+      if(new_info.city !== undefined) {
+        userList[this.user].city = [];
+        if(new_info.city.province !== undefined) userList[this.user].city[0] = new_info.city.province;
+        if(new_info.city.city !== undefined) userList[this.user].city[1] = new_info.city.city;
+        if(new_info.city.district !== undefined) userList[this.user].city[2] = new_info.city.district;
+      }
+    };
   }
 
   // for home page
@@ -1878,6 +1888,9 @@ class Store {
         portrait: require('./pic/' + user_info.image),
         phone: user_info.phone,
         city: user_info.city,
+        credit: user_info.credit,
+        id_card: user_info.id_card,
+        real_name: user_info.real_name,
       },
       myItems: items,
       myUsages: usages,
@@ -2049,6 +2062,10 @@ class Store {
       case this.ITEM_LENT:
         return '已借出';
     }
+  }
+
+  logout() {
+    this.user = undefined;
   }
 }
 

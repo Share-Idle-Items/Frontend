@@ -1,4 +1,4 @@
-import { observable, action, computed } from 'mobx';
+import {observable, action, computed} from 'mobx';
 
 class Store {
   // for app
@@ -14,7 +14,16 @@ class Store {
   @observable ITEM_LENT = 2;
   @observable MESSAGE = 0;
 
+  @observable loading = false;
+  @observable data = null;
+  @observable error = null;
+
   constructor() {
+
+    this.callAPI('post', 'user', {
+      'username': 'wujiang',
+      'password': 'wujiang',
+    });
     // base data
     let itemList = [
       {
@@ -1762,15 +1771,34 @@ class Store {
       return JSON.parse(JSON.stringify(orderList));
     };
     this.updateUserInfo = (new_info) => {
-      if(new_info.password !== undefined) userList[this.user].password = new_info.password;
-      if(new_info.phone !== undefined) userList[this.user].phone = new_info.phone;
-      if(new_info.city !== undefined) {
+      if (new_info.password !== undefined) userList[this.user].password = new_info.password;
+      if (new_info.phone !== undefined) userList[this.user].phone = new_info.phone;
+      if (new_info.city !== undefined) {
         userList[this.user].city = [];
-        if(new_info.city.province !== undefined) userList[this.user].city[0] = new_info.city.province;
-        if(new_info.city.city !== undefined) userList[this.user].city[1] = new_info.city.city;
-        if(new_info.city.district !== undefined) userList[this.user].city[2] = new_info.city.district;
+        if (new_info.city.province !== undefined) userList[this.user].city[0] = new_info.city.province;
+        if (new_info.city.city !== undefined) userList[this.user].city[1] = new_info.city.city;
+        if (new_info.city.district !== undefined) userList[this.user].city[2] = new_info.city.district;
       }
     };
+  }
+
+  @action callAPI(method, postfix, body = {}) {
+    this.loading = true;
+    fetch(`/api/${postfix}`, {
+      method: method,
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json())
+      .then(action(json => {
+        console.log(json);
+        this.data = json;
+      }))
+      .catch(action(e => {
+        console.error(e);
+        this.error = e;
+      }));
   }
 
   // for home page
@@ -1820,13 +1848,13 @@ class Store {
   getHomePageInfo() {
     let typeColumns = this.typeColumnsOnHomePage;
     let pictureColumns = [];
-    for (const [i, id] of this.pictureColumnOnHomePage.entries()) {
-      let item = this.findId(id);
-      pictureColumns[i] = {
-        picSrc: require('./pic/' + item.images[0]),
-        id: id,
-      };
-    }
+    // for (const [i, id] of this.pictureColumnOnHomePage.entries()) {
+    //   let item = this.findId(id);
+    //   pictureColumns[i] = {
+    //     picSrc: require('./pic/' + item.images[0]),
+    //     id: id,
+    //   };
+    // }
     let itemsColumns = [];
     for (const [i, column] of this.itemsColumnsOnHomePage.entries()) {
       itemsColumns[i] = {
@@ -1838,7 +1866,7 @@ class Store {
         itemsColumns[i].items[j] = {
           title: item.title,
           id: id,
-          picSrc: require('./pic/' + item.images[0]),
+          //picSrc: require('./pic/' + item.images[0]),
         }
       }
     }
@@ -1858,7 +1886,7 @@ class Store {
       items[i].id = items[i].front_id;
       if (+items[i].owner.substr(1) !== +user_id) items.splice(i, 1);
       else {
-        items[i].images[0] = require('./pic/'+items[i].images[0]);
+        //items[i].images[0] = require('./pic/'+items[i].images[0]);
       }
     }
     const usages = this.getAllOrders();
@@ -1871,7 +1899,7 @@ class Store {
       user: {
         id: user_id,
         name: user_info.user_name,
-        portrait: require('./pic/' + user_info.image),
+        //portrait: require('./pic/' + user_info.image),
         phone: user_info.phone,
         city: user_info.city,
         credit: user_info.credit,
@@ -1888,7 +1916,7 @@ class Store {
     const org_data = this.findItem(id);
     let re_data = JSON.parse(JSON.stringify(org_data));
     for (const [i, pic] of org_data.images.entries()) {
-      re_data.images[i] = require('./pic/' + pic);
+      //re_data.images[i] = require('./pic/' + pic);
       re_data.id = re_data.front_id;
     }
     return re_data;
@@ -1974,7 +2002,7 @@ class Store {
       if (!is_match) list.splice(i, 1);
       else {
         for (let [i, pic] of item.images.entries()) {
-          item.images[i] = require('./pic/' + pic);
+          //item.images[i] = require('./pic/' + pic);
         }
       }
     }

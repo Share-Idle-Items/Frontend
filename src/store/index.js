@@ -95,20 +95,6 @@ class Store {
         use_time: 4,
       }
     ];
-    let recordList = [
-      {
-        sender: 'u0',
-        receiver: 'u1',
-        type: this.MESSAGE,
-        content: '泥嚎！',
-        time: 1528348893,
-      }
-    ];
-    let tagList = [
-      {
-        name: ''
-      }
-    ];
     let arrCity = [
       {
         name: "北京",

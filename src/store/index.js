@@ -2041,9 +2041,17 @@ class Store {
         image: new_info.image !== undefined ? new_info.image:old_info.image,
         credit: new_info.credit !== undefined ? new_info.credit:old_info.credit,
         password: new_info.password !== undefined ? new_info.password:old_info.password,
-        location: new_info.city !== undefined ? new_info.city:old_info.location,
+        location: new_info.city !== undefined ? {
+          "province":new_info.city.province,
+          "city":new_info.city.city,
+          "region":new_info.city.district,
+        }:old_info.location,
         // real_name: new_info.real_name !== undefined ? new_info.real_name:old_info.real_name,
         // id_card: new_info.id_card !== undefined ? new_info.id_card:old_info.id_card,
+      }, ()=>{
+        this.routing.push('/home');
+        this.routing.push('/user/settings');
+        alert("更新成功！");
       });
     });
   };

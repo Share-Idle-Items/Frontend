@@ -56,6 +56,7 @@ class Settings extends Component {
       changePassword: false,
       changePhone: false,
       changeCity: false,
+      changeReal: false,
       check: '',
       password: '',
       phone: '',
@@ -63,7 +64,9 @@ class Settings extends Component {
         province: '',
         city: '',
         district: '',
-      }
+      },
+      real_name: '',
+      id_card: '',
     }
   }
 
@@ -120,6 +123,18 @@ class Settings extends Component {
     })
   };
 
+  changeRealName = event => {
+    this.setState({
+      real_name: event.target.value,
+    })
+  };
+
+  changeIdCard = event => {
+    this.setState({
+      id_card: event.target.value,
+    })
+  };
+
   tryChangePassword = () => {
     this.setState({
       changePassword: true,
@@ -138,11 +153,18 @@ class Settings extends Component {
     });
   };
 
+  tryChangeReal = () => {
+    this.setState({
+      changeReal: true,
+    })
+  };
+
   handleClose = () => {
     this.setState({
       changePassword: false,
       changePhone: false,
       changeCity: false,
+      changeReal: false,
       check: '',
       password: '',
       phone: '',
@@ -150,7 +172,9 @@ class Settings extends Component {
         province: '',
         city: '',
         district: '',
-      }
+      },
+      real_name: '',
+      id_card: '',
     });
   };
 
@@ -192,6 +216,13 @@ class Settings extends Component {
             city: this.state.location
           })
         }
+        if(this.state.real_name.length !== 0 && this.state.id_card.length !== 0) {
+          changeSomething = true;
+          store.updateUserInfo({
+            real_name: this.state.real_name,
+            id_card: this.state.id_card,
+          })
+        }
       }
       if (!changeSomething) {
         alert('填写项不能为空');
@@ -205,7 +236,9 @@ class Settings extends Component {
           province: '',
           city: '',
           district: '',
-        }
+        },
+        real_name: '',
+        id_card: '',
       });
       if(close) this.handleClose();
     });
@@ -241,11 +274,11 @@ class Settings extends Component {
             <Typography className={classes.heading}>实名认证</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.details}>
-            {data.id_card === undefined &&
-            <Typography className={classes.detail}>未进行实名认证</Typography>}
-            {data.id_card !== undefined &&
+            {(data.id_card === undefined || data.id_card.length === 0) &&
+            <Button variant={"contained"} className={classes.detail} onClick={this.tryChangeReal}>进行实名认证</Button>}
+            {(data.id_card !== undefined && data.id_card.length !== 0) &&
             <Typography className={classes.detail}>姓名：{data.real_name}</Typography>}
-            {data.id_card !== undefined &&
+            {(data.id_card !== undefined && data.id_card.length !== 0) &&
             <Typography className={classes.detail}>证件：{data.id_card}</Typography>}
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -383,6 +416,45 @@ class Settings extends Component {
                 })}
               </Select>
             </FormControl>}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="secondary">
+              取消
+            </Button>
+            <Button onClick={this.handleUpdate} color="primary">
+              提交
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog open={this.state.changeReal}>
+          <DialogTitle>实名认证</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              请输入密码，并进行实名信息：
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="密码"
+              type="password"
+              value={this.state.check}
+              fullWidth
+              onChange={this.changeCheck}
+            />
+            <TextField
+              margin="dense"
+              label="真实姓名"
+              value={this.state.real_name}
+              fullWidth
+              onChange={this.changeRealName}
+            />
+            <TextField
+              margin="dense"
+              label="身份证号"
+              fullWidth
+              value={this.state.id_card}
+              onChange={this.changeIdCard}
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="secondary">

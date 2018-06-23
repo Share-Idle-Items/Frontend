@@ -138,12 +138,11 @@ class PublishPage extends Component {
     if (store.user === undefined) {
       store.routing.push('/login');
     } else {
-      const user = store.getUserInfo().user;
       this.state = {
         location: {
-          province: user.city[0] !== undefined? user.city[0]: '',
-          city: user.city[1] !== undefined? user.city[1]: '',
-          district: user.city[2] !== undefined? user.city[2]: '',
+          province: '',
+          city: '',
+          district: '',
         },
         pictures: [],
         picSrc: [],
@@ -153,7 +152,24 @@ class PublishPage extends Component {
         time: 5,
         transfer: ['自取', '邮寄', '面交'],
         phone: user.phone,
-      }
+      };
+      store.getUserInfo(store.user, user=>{
+        this.setState({
+          location: {
+            province: user.user.city[0] !== undefined? user.user.city[0]: '',
+            city: user.user.city[1] !== undefined? user.user.city[1]: '',
+            district: user.user.city[2] !== undefined? user.user.city[2]: '',
+          },
+          pictures: [],
+          picSrc: [],
+          title: '',
+          description: '',
+          price: 0,
+          time: 5,
+          transfer: ['自取', '邮寄', '面交'],
+          phone: user.user.phone,
+        })
+      });
     }
   }
 

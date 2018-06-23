@@ -34,15 +34,29 @@ const styles = theme => ({
 @inject('store')
 @observer
 class Header extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: "user",
+      portrait: undefined,
+    }
+  }
+
+  componentWillMount() {
+    const {store} = this.props;
+    const item = this.props.org_data;
+    store.getUserInfo(item.owner, user_info=>{
+      this.setState(user_info.user);
+    });
+  }
+
   render() {
     const {classes, store} = this.props;
-    const item = this.props.org_data;
-    const user = store.getUserInfo(item.owner.substr(1)).user;
     return (<div className={classes.root}>
       <div id='item_header_owner' className={classes.grid} style={{lineHeight: '50px'}}>
         <Button className={classes.button}>
-          <Avatar alt={user.name} src={user.portrait} className={classes.avatar} />
-          {user.name}
+          <Avatar alt={this.state.name} src={this.state.portrait} className={classes.avatar} />
+          {this.state.name}
         </Button>
       </div>
       <div id='item_header_owner' className={classes.grid} style={{lineHeight: '25px'}}>

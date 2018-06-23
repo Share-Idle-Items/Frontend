@@ -83,16 +83,26 @@ class MainInfo extends Component {
     this.state = {
       timeout: 3000,
       showSlider: false,
-      selected: 0
+      selected: 0,
+      user: {
+        city: [],
+        phone: '',
+      },
     };
     this.timer = setInterval(this.switchToNextPicture.bind(this), this.state.timeout);
   }
-
+  componentWillMount() {
+    const {store} = this.props;
+    store.getUserInfo(item.owner.substr(1), user=>{
+      this.setState({
+        user: user.user,
+      })
+    });
+  }
   render() {
     const {classes, store} = this.props;
     const item = this.props.org_data;
     const item_pic = item.images;
-    const user = store.getUserInfo(item.owner.substr(1)).user;
 
     return (
       <div className={classes.root}>
@@ -131,8 +141,8 @@ class MainInfo extends Component {
             <p>{'剩余共享时间：'+item.availableTime+'天'}</p>
           </div>
           <div className={classes.sub_info}>
-            <p>{'所在地：'+user.city.join(' ')}</p>
-            <p>{'联系方式：'+user.phone}</p>
+            <p>{'所在地：'+this.state.user.city.join(' ')}</p>
+            <p>{'联系方式：'+this.state.user.phone}</p>
             <p>{'交易方式：'+store.getTransferMethodByTransferCode(item.transfer)}</p>
           </div>
           <Button variant='contained' color='primary'>立即租用</Button>

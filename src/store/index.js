@@ -19,11 +19,6 @@ class Store {
   @observable error = null;
 
   constructor() {
-
-    this.callAPI('post', 'user', {
-      'username': 'wujiang',
-      'password': 'wujiang',
-    });
     // base data
     let itemList = [
       {
@@ -1770,16 +1765,7 @@ class Store {
     this.getAllOrders = () => {
       return JSON.parse(JSON.stringify(orderList));
     };
-    this.updateUserInfo = (new_info) => {
-      if (new_info.password !== undefined) userList[this.user].password = new_info.password;
-      if (new_info.phone !== undefined) userList[this.user].phone = new_info.phone;
-      if (new_info.city !== undefined) {
-        userList[this.user].city = [];
-        if (new_info.city.province !== undefined) userList[this.user].city[0] = new_info.city.province;
-        if (new_info.city.city !== undefined) userList[this.user].city[1] = new_info.city.city;
-        if (new_info.city.district !== undefined) userList[this.user].city[2] = new_info.city.district;
-      }
-    };
+
   }
 
   @action callAPI(method, postfix, body, callback) {
@@ -1834,18 +1820,7 @@ class Store {
   ];
 
   // for user page
-  user = undefined;
-
-  // get data
-// TODO: done
-  findId(id) {
-    if (id.startsWith('i')) return this.findItem(id.substr(1));
-    else if (id.startsWith('u')) return this.findUser(id.substr(1));
-    else if (id.startsWith('o')) return this.findOrder(id.substr(1));
-    else if (id.startsWith('s')) return this.findServer(id.substr(1));
-    else if (id.startsWith('r')) return this.findRecord(id.substr(1));
-    else if (id.startsWith('t')) return this.findTag(id.substr(1));
-  }
+  @observable user = undefined;
 
   // to get data
 // TODO: done
@@ -1853,7 +1828,7 @@ class Store {
     let typeColumns = this.typeColumnsOnHomePage;
     let pictureColumns = [];
     for (const [i, id] of this.pictureColumnOnHomePage.entries()) {
-      let item = this.findId(id);
+      let item = this.findItem(id.substr(1));
       pictureColumns[i] = {
         picSrc: require('./pic/' + item.images[0]),
         id: id,
@@ -1866,7 +1841,7 @@ class Store {
         items: []
       };
       for (const [j, id] of column.items.entries()) {
-        let item = this.findId(id);
+        let item = this.findItem(id.substr(1));
         itemsColumns[i].items[j] = {
           title: item.title,
           id: id,
@@ -1881,38 +1856,45 @@ class Store {
     }
   }
 // TODO: done
-  getUserInfo(user_id) {
-    if (user_id === undefined) user_id = this.user;
-    if (user_id === undefined) return undefined;
-    const user_info = this.findUser(user_id);
-    const items = this.getAllItems();
-    for (let i = items.length - 1; i >= 0; i--) {
-      items[i].id = items[i].front_id;
-      if (+items[i].owner.substr(1) !== +user_id) items.splice(i, 1);
-      else {
-        items[i].images[0] = require('./pic/'+items[i].images[0]);
-      }
-    }
-    const usages = this.getAllOrders();
-    for (let i = usages.length - 1; i >= 0; i--) {
-      usages[i].id = usages[i].front_id;
-      if (+usages[i].borrower.substr(1) !== +user_id)
-        usages.splice(i, 1);
-    }
-    return {
-      user: {
-        id: user_id,
-        name: user_info.user_name,
-        portrait: require('./pic/' + user_info.image),
-        phone: user_info.phone,
-        city: user_info.city,
-        credit: user_info.credit,
-        id_card: user_info.id_card,
-        real_name: user_info.real_name,
-      },
-      myItems: items,
-      myUsages: usages,
-    };
+  getUserInfo(user_id, callback) {
+    console.log(user_id);
+    this.callAPI("GET", "/user/"+user_id, null, user_info=>{
+      const items = [];
+      const usages = [];
+      // const items = this.getAllItems();
+      // for (let i = items.length - 1; i >= 0; i--) {
+      //   items[i].id = items[i].front_id;
+      //   if (+items[i].owner.substr(1) !== +user_id) items.splice(i, 1);
+      //   else {
+      //     items[i].images[0] = require('./pic/'+items[i].images[0]);
+      //   }
+      // }
+      // const usages = this.getAllOrders();
+      // for (let i = usages.length - 1; i >= 0; i--) {
+      //   usages[i].id = usages[i].front_id;
+      //   if (+usages[i].borrower.substr(1) !== +user_id)
+      //     usages.splice(i, 1);
+      // }
+      const cb = {
+        user: {
+          id: user_id,
+          name: user_info.username,
+          portrait: user_info.image,
+          phone: user_info.phone,
+          city: [],
+          credit: user_info.credit,
+          id_card: user_info.id_card,
+          real_name: user_info.real_name,
+        },
+        myItems: items,
+        myUsages: usages,
+      };
+      if(user_info.location.province.length !== 0) cb.user.city[0] = user_info.location.province;
+      if(user_info.location.city.length !== 0) cb.user.city[1] = user_info.location.city;
+      if(user_info.location.region.length !== 0) cb.user.city[2] = user_info.location.region;
+      console.log(cb);
+      callback(cb);
+    });
   }
 // TODO: done
   getItemInfo(id) {
@@ -2019,14 +2001,14 @@ class Store {
   @observable WRONG_PASSWORD = 2;
 
   confirmUser(username, password, callback) {
-    this.callAPI("GET", "/user/"+username, null, json=>{
-      if(json.front_id !== json.username) callback(this.NO_USER);
+    this.callAPI("GET", "/user/"+username, null, get_json=>{
+      if(get_json.front_id !== get_json.username) callback(this.NO_USER);
       else
         this.callAPI("POST", "/user/session", {
           "username": username,
           "password": password
-        }, json=>{
-          if(json.result === "Fail") callback(this.WRONG_PASSWORD);
+        }, post_json=>{
+          if(post_json.result === "Fail") callback(this.WRONG_PASSWORD);
           else {
             this.user = username;
             callback(this.PASS);
@@ -2035,7 +2017,7 @@ class Store {
     });
   }
 
-  @action registerUser(username, password) {
+  registerUser(username, password) {
     this.callAPI("POST", "/user", {
       "username": username,
       "password": password,
@@ -2043,13 +2025,28 @@ class Store {
     })
   }
 
-  @action loginUser(username, password) {
+  loginUser(username, password) {
     this.callAPI("POST", "/user/session", {
       "username": username,
       "password": password
     }, json=>{
     })
   }
+
+  updateUserInfo = (new_info) => {
+    this.callAPI("GET", "/user/"+username, null, old_info=>{
+      this.callAPI("PATCH", "/user", {
+        front_id: this.user,
+        phone: new_info.phone !== undefined ? new_info.phone:old_info.phone,
+        image: new_info.image !== undefined ? new_info.image:old_info.image,
+        credit: new_info.credit !== undefined ? new_info.credit:old_info.credit,
+        password: new_info.password !== undefined ? new_info.password:old_info.password,
+        location: new_info.city !== undefined ? new_info.city:old_info.location,
+        // real_name: new_info.real_name !== undefined ? new_info.real_name:old_info.real_name,
+        // id_card: new_info.id_card !== undefined ? new_info.id_card:old_info.id_card,
+      });
+    });
+  };
 
   getUserName() {
     return this.user;
@@ -2059,7 +2056,7 @@ class Store {
   @observable GET_BY_SELF = 1;
   @observable SEND_BY_OWNER = 2;
   @observable TRANSFER_BY_DATE = 4;
-  // TODO
+
   getTransferMethodByTransferCode(code) {
     let str = '';
     // noinspection JSBitwiseOperatorUsage
@@ -2070,7 +2067,7 @@ class Store {
     if (code & this.TRANSFER_BY_DATE) str += '面交 ';
     return str;
   }
-  // TODO
+
   getOrderStatusNameByCode(code) {
     switch (code) {
       case this.ORDER_CONNECT:
@@ -2085,7 +2082,7 @@ class Store {
         return '超时';
     }
   }
-  // TODO
+
   getItemStatusNameByCode(code) {
     switch (code) {
       case this.ITEM_PUBLISH:
@@ -2096,8 +2093,8 @@ class Store {
         return '已借出';
     }
   }
-  // TODO
-  logout() {
+
+  @action logout() {
     this.user = undefined;
   }
 }

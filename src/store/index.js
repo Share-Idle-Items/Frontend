@@ -2034,7 +2034,7 @@ class Store {
   }
 
   updateUserInfo = (new_info) => {
-    this.callAPI("GET", "/user/"+username, null, old_info=>{
+    this.callAPI("GET", "/user/"+this.user, null, old_info=>{
       this.callAPI("PATCH", "/user", {
         front_id: this.user,
         phone: new_info.phone !== undefined ? new_info.phone:old_info.phone,

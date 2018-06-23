@@ -1848,13 +1848,13 @@ class Store {
   getHomePageInfo() {
     let typeColumns = this.typeColumnsOnHomePage;
     let pictureColumns = [];
-    // for (const [i, id] of this.pictureColumnOnHomePage.entries()) {
-    //   let item = this.findId(id);
-    //   pictureColumns[i] = {
-    //     picSrc: require('./pic/' + item.images[0]),
-    //     id: id,
-    //   };
-    // }
+    for (const [i, id] of this.pictureColumnOnHomePage.entries()) {
+      let item = this.findId(id);
+      pictureColumns[i] = {
+        picSrc: require('./pic/' + item.images[0]),
+        id: id,
+      };
+    }
     let itemsColumns = [];
     for (const [i, column] of this.itemsColumnsOnHomePage.entries()) {
       itemsColumns[i] = {
@@ -1866,7 +1866,7 @@ class Store {
         itemsColumns[i].items[j] = {
           title: item.title,
           id: id,
-          //picSrc: require('./pic/' + item.images[0]),
+          picSrc: require('./pic/' + item.images[0]),
         }
       }
     }
@@ -1886,7 +1886,7 @@ class Store {
       items[i].id = items[i].front_id;
       if (+items[i].owner.substr(1) !== +user_id) items.splice(i, 1);
       else {
-        //items[i].images[0] = require('./pic/'+items[i].images[0]);
+        items[i].images[0] = require('./pic/'+items[i].images[0]);
       }
     }
     const usages = this.getAllOrders();
@@ -1899,7 +1899,7 @@ class Store {
       user: {
         id: user_id,
         name: user_info.user_name,
-        //portrait: require('./pic/' + user_info.image),
+        portrait: require('./pic/' + user_info.image),
         phone: user_info.phone,
         city: user_info.city,
         credit: user_info.credit,
@@ -1916,9 +1916,9 @@ class Store {
     const org_data = this.findItem(id);
     let re_data = JSON.parse(JSON.stringify(org_data));
     for (const [i, pic] of org_data.images.entries()) {
-      //re_data.images[i] = require('./pic/' + pic);
-      re_data.id = re_data.front_id;
+      re_data.images[i] = require('./pic/' + pic);
     }
+    re_data.id = re_data.front_id;
     return re_data;
   }
 
@@ -2002,7 +2002,7 @@ class Store {
       if (!is_match) list.splice(i, 1);
       else {
         for (let [i, pic] of item.images.entries()) {
-          //item.images[i] = require('./pic/' + pic);
+          item.images[i] = require('./pic/' + pic);
         }
       }
     }

@@ -93,6 +93,7 @@ class MainInfo extends Component {
   }
   componentWillMount() {
     const {store} = this.props;
+    const item = this.props.org_data;
     store.getUserInfo(item.owner.substr(1), user=>{
       this.setState({
         user: user.user,

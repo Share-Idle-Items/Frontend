@@ -70,11 +70,13 @@ class Register extends Component {
     if (2 <= username.length && username.length <= 7) {
       if (/^[a-zA-Z0-9]{6,14}$/.test(password)) {
         if (confirm === password) {
-          if (store.confirmUser(username, password) === store.NO_USER) {
-            store.registerUser(username, password);
-            store.loginUser();
-            store.routing.push('/home');
-          } else this.setState({wrong_code: this.WRONG_OCCUPY});
+          store.confirmUser(username, password, result=>{
+            if (result === store.NO_USER) {
+              store.registerUser(username, password);
+              store.loginUser(username, password);
+              store.routing.push('/home');
+            } else this.setState({wrong_code: this.WRONG_OCCUPY});
+          });
         } else this.setState({wrong_code: this.WRONG_CONFIRM});
       } else this.setState({wrong_code: this.WRONG_PASSWORD});
     } else this.setState({wrong_code: this.WRONG_USERNAME});

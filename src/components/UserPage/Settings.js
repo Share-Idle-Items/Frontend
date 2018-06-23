@@ -158,55 +158,57 @@ class Settings extends Component {
     const store = this.props.store;
     let changeSomething = true;
     let close = true;
-    if (store.confirmUser(this.props.org_data.name, this.state.check) !== store.PASS) {
-      close = false;
-      alert("密码认证失败");
-    } else {
-      changeSomething = false;
-      if(this.state.password.length !== 0) {
-        changeSomething = true;
-        if (/^[a-zA-Z0-9]{6,14}$/.test(this.state.password)) {
+    store.confirmUser(this.props.org_data.name, this.state.check, result=>{
+      if (result !== store.PASS) {
+        close = false;
+        alert("密码认证失败");
+      } else {
+        changeSomething = false;
+        if(this.state.password.length !== 0) {
+          changeSomething = true;
+          if (/^[a-zA-Z0-9]{6,14}$/.test(this.state.password)) {
+            store.updateUserInfo({
+              password: this.state.password
+            })
+          } else {
+            close = false;
+            alert('新密码不符合标准');
+          }
+        }
+        if(this.state.phone.length !== 0) {
+          changeSomething = true;
+          if (/^[1][0-9]{10}$/.test(this.state.phone)) {
+            store.updateUserInfo({
+              phone: this.state.phone
+            })
+          } else {
+            close = false;
+            alert('新手机不符合格式要求');
+          }
+        }
+        if(this.state.location.province.length !== 0) {
+          changeSomething = true;
           store.updateUserInfo({
-            password: this.state.password
+            city: this.state.location
           })
-        } else {
-          close = false;
-          alert('新密码不符合标准');
         }
       }
-      if(this.state.phone.length !== 0) {
-        changeSomething = true;
-        if (/^[1][0-9]{10}$/.test(this.state.phone)) {
-          store.updateUserInfo({
-            phone: this.state.phone
-          })
-        } else {
-          close = false;
-          alert('新手机不符合格式要求');
+      if (!changeSomething) {
+        alert('填写项不能为空');
+        close = false;
+      }
+      this.setState({
+        check: '',
+        password: '',
+        phone: '',
+        location: {
+          province: '',
+          city: '',
+          district: '',
         }
-      }
-      if(this.state.location.province.length !== 0) {
-        changeSomething = true;
-        store.updateUserInfo({
-          city: this.state.location
-        })
-      }
-    }
-    if (!changeSomething) {
-      alert('填写项不能为空');
-      close = false;
-    }
-    this.setState({
-      check: '',
-      password: '',
-      phone: '',
-      location: {
-        province: '',
-        city: '',
-        district: '',
-      }
+      });
+      if(close) this.handleClose();
     });
-    if(close) this.handleClose();
   };
 
   render() {

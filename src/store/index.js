@@ -1782,11 +1782,11 @@ class Store {
     };
   }
 
-  @action callAPI(method, postfix, body = {}) {
+  @action callAPI(method, postfix, body, callback) {
     this.loading = true;
     fetch(`/api/${postfix}`, {
       method: method,
-      body: JSON.stringify(body),
+      body: body === null ? undefined:JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1794,6 +1794,8 @@ class Store {
       .then(action(json => {
         console.log(json);
         this.data = json;
+        if(callback !== undefined) callback(json);
+        this.loading = false;
       }))
       .catch(action(e => {
         console.error(e);
@@ -1832,9 +1834,10 @@ class Store {
   ];
 
   // for user page
-  user = 1;
+  user = undefined;
 
   // get data
+// TODO: done
   findId(id) {
     if (id.startsWith('i')) return this.findItem(id.substr(1));
     else if (id.startsWith('u')) return this.findUser(id.substr(1));
@@ -1845,6 +1848,7 @@ class Store {
   }
 
   // to get data
+// TODO: done
   getHomePageInfo() {
     let typeColumns = this.typeColumnsOnHomePage;
     let pictureColumns = [];
@@ -1876,7 +1880,7 @@ class Store {
       itemsColumns: itemsColumns
     }
   }
-
+// TODO: done
   getUserInfo(user_id) {
     if (user_id === undefined) user_id = this.user;
     if (user_id === undefined) return undefined;
@@ -1910,7 +1914,7 @@ class Store {
       myUsages: usages,
     };
   }
-
+// TODO: done
   getItemInfo(id) {
     if (id === undefined || id === null || id.length === 0) return undefined;
     const org_data = this.findItem(id);
@@ -1921,7 +1925,7 @@ class Store {
     re_data.id = re_data.front_id;
     return re_data;
   }
-
+// TODO: done
   getItems(key, price, time, city) {
     let list = this.getAllItems();
 
@@ -2014,33 +2018,48 @@ class Store {
   @observable NO_USER = 1;
   @observable WRONG_PASSWORD = 2;
 
-  confirmUser(username, password) {
-    let userId = this.findUserIdByName(username);
-    if (userId === -1) return this.NO_USER;
-    else if (this.checkUserPassword(userId, password)) {
-      this.last_confirm = userId;
-      return this.PASS;
-    }
-    else return this.WRONG_PASSWORD;
+  confirmUser(username, password, callback) {
+    this.callAPI("GET", "/user/"+username, null, json=>{
+      if(json.front_id !== json.username) callback(this.NO_USER);
+      else
+        this.callAPI("POST", "/user/session", {
+          "username": username,
+          "password": password
+        }, json=>{
+          if(json.result === "Fail") callback(this.WRONG_PASSWORD);
+          else {
+            this.user = username;
+            callback(this.PASS);
+          }
+        })
+    });
   }
 
   @action registerUser(username, password) {
-    this.last_confirm = this.newUser(username, password);
+    this.callAPI("POST", "/user", {
+      "username": username,
+      "password": password,
+      "front_id": username
+    })
   }
 
-  @action loginUser() {
-    this.user = this.last_confirm;
+  @action loginUser(username, password) {
+    this.callAPI("POST", "/user/session", {
+      "username": username,
+      "password": password
+    }, json=>{
+    })
   }
 
   getUserName() {
-    return this.findUser(this.user).user_name;
+    return this.user;
   }
 
   // about item
   @observable GET_BY_SELF = 1;
   @observable SEND_BY_OWNER = 2;
   @observable TRANSFER_BY_DATE = 4;
-
+  // TODO
   getTransferMethodByTransferCode(code) {
     let str = '';
     // noinspection JSBitwiseOperatorUsage
@@ -2051,7 +2070,7 @@ class Store {
     if (code & this.TRANSFER_BY_DATE) str += '面交 ';
     return str;
   }
-
+  // TODO
   getOrderStatusNameByCode(code) {
     switch (code) {
       case this.ORDER_CONNECT:
@@ -2066,7 +2085,7 @@ class Store {
         return '超时';
     }
   }
-
+  // TODO
   getItemStatusNameByCode(code) {
     switch (code) {
       case this.ITEM_PUBLISH:
@@ -2077,7 +2096,7 @@ class Store {
         return '已借出';
     }
   }
-
+  // TODO
   logout() {
     this.user = undefined;
   }

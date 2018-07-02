@@ -45,7 +45,7 @@ class Header extends Component {
   componentWillMount() {
     const {store} = this.props;
     const item = this.props.org_data;
-    store.getUserInfo(item.owner, user_info=>{
+    store.getUserInfo(item.user, user_info=>{
       this.setState(user_info.user);
     });
   }

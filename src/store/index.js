@@ -1770,9 +1770,9 @@ class Store {
 
   @action callAPI(method, postfix, body, callback) {
     this.loading = true;
-    fetch(`/api/${postfix}`, {
+    return fetch(`/api/${postfix}`, {
       method: method,
-      body: body === null ? undefined:JSON.stringify(body),
+      body: body === null ? undefined : JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1780,8 +1780,9 @@ class Store {
       .then(action(json => {
         console.log(json);
         this.data = json;
-        if(callback !== undefined) callback(json);
+        if (callback !== undefined) callback(json);
         this.loading = false;
+        return json;
       }))
       .catch(action(e => {
         console.error(e);
@@ -1813,10 +1814,7 @@ class Store {
     }, {
       title: "猜你喜欢",
       items: ['i0', 'i1', 'i2', 'i1', 'i0'],
-    }, {
-      title: "历史记录",
-      items: ['i0', 'i1', 'i2', 'i1', 'i0', 'i1'],
-    },
+    }
   ];
 
   // for user page
@@ -1825,40 +1823,45 @@ class Store {
   // to get data
 // TODO: done
   getHomePageInfo() {
-    let typeColumns = this.typeColumnsOnHomePage;
-    let pictureColumns = [];
-    for (const [i, id] of this.pictureColumnOnHomePage.entries()) {
-      let item = this.findItem(id.substr(1));
-      pictureColumns[i] = {
-        picSrc: require('./pic/' + item.images[0]),
-        id: id,
-      };
-    }
-    let itemsColumns = [];
-    for (const [i, column] of this.itemsColumnsOnHomePage.entries()) {
-      itemsColumns[i] = {
-        title: column.title,
-        items: []
-      };
-      for (const [j, id] of column.items.entries()) {
-        let item = this.findItem(id.substr(1));
-        itemsColumns[i].items[j] = {
-          title: item.title,
-          id: id,
-          picSrc: require('./pic/' + item.images[0]),
+    return this.callAPI('get', 'item/random/10')
+      .then(({list}) => {
+        let typeColumns = this.typeColumnsOnHomePage;
+        let pictureColumns = [];
+        for ( let {image, front_id} of list) {
+          pictureColumns.push({
+            picSrc: image[0],
+            id: front_id,
+          });
         }
-      }
-    }
-    return {
-      typeColumns: typeColumns,
-      pictureColumn: pictureColumns,
-      itemsColumns: itemsColumns
-    }
+        let itemsColumns = [];
+        for (const [i, column] of this.itemsColumnsOnHomePage.entries()) {
+          let items = [];
+          for ( let {name, image, front_id} of list) {
+            items.push({
+              title: name,
+              picSrc: image[0],
+              id: front_id,
+            });
+          }
+          itemsColumns.push({
+            title: column.title,
+            items: items
+          });
+
+        }
+        return {
+          typeColumns: typeColumns,
+          pictureColumn: pictureColumns,
+          itemsColumns: itemsColumns
+        }
+      });
+
   }
+
 // TODO: done
   getUserInfo(user_id, callback) {
     console.log(user_id);
-    this.callAPI("GET", "/user/"+user_id, null, user_info=>{
+    this.callAPI("GET", "/user/" + user_id, null, user_info => {
       const items = [];
       const usages = [];
       // const items = this.getAllItems();
@@ -1889,24 +1892,40 @@ class Store {
         myItems: items,
         myUsages: usages,
       };
-      if(user_info.location.province.length !== 0) cb.user.city[0] = user_info.location.province;
-      if(user_info.location.city.length !== 0) cb.user.city[1] = user_info.location.city;
-      if(user_info.location.region.length !== 0) cb.user.city[2] = user_info.location.region;
+      if (user_info.location.province.length !== 0) cb.user.city[0] = user_info.location.province;
+      if (user_info.location.city.length !== 0) cb.user.city[1] = user_info.location.city;
+      if (user_info.location.region.length !== 0) cb.user.city[2] = user_info.location.region;
       console.log(cb);
       callback(cb);
     });
   }
+
+  publish(user, state) {
+    return this.callAPI('POST', '/item', {
+      "name": state.title,
+      "description": state.description,
+      "user": user,
+      "price": state.price,
+      "deposit": 1,
+      "image": state.picSrc,
+      "startTime": state.time,
+      "endTime": 0,
+      "transfer": 0,
+      "location": {
+        province: state.location.province,
+        city: state.location.city,
+        region: state.location.district,
+      },
+      "category": state.transfer.join(','),
+      "phone": state.phone
+    })
+  }
+
 // TODO: done
   getItemInfo(id) {
-    if (id === undefined || id === null || id.length === 0) return undefined;
-    const org_data = this.findItem(id);
-    let re_data = JSON.parse(JSON.stringify(org_data));
-    for (const [i, pic] of org_data.images.entries()) {
-      re_data.images[i] = require('./pic/' + pic);
-    }
-    re_data.id = re_data.front_id;
-    return re_data;
+    return this.callAPI('get', `/item/${id}`, null);
   }
+
 // TODO: done
   getItems(key, price, time, city) {
     let list = this.getAllItems();
@@ -2001,14 +2020,14 @@ class Store {
   @observable WRONG_PASSWORD = 2;
 
   confirmUser(username, password, callback) {
-    this.callAPI("GET", "/user/"+username, null, get_json=>{
-      if(get_json.front_id !== get_json.username) callback(this.NO_USER);
+    this.callAPI("GET", "/user/" + username, null, get_json => {
+      if (get_json.front_id !== get_json.username) callback(this.NO_USER);
       else
         this.callAPI("POST", "/user/session", {
           "username": username,
           "password": password
-        }, post_json=>{
-          if(post_json.result === "Fail") callback(this.WRONG_PASSWORD);
+        }, post_json => {
+          if (post_json.result === "Fail") callback(this.WRONG_PASSWORD);
           else {
             this.user = username;
             callback(this.PASS);
@@ -2029,26 +2048,26 @@ class Store {
     this.callAPI("POST", "/user/session", {
       "username": username,
       "password": password
-    }, json=>{
+    }, json => {
     })
   }
 
   updateUserInfo = (new_info) => {
-    this.callAPI("GET", "/user/"+this.user, null, old_info=>{
+    this.callAPI("GET", "/user/" + this.user, null, old_info => {
       this.callAPI("PATCH", "/user", {
         front_id: this.user,
-        phone: new_info.phone !== undefined ? new_info.phone:old_info.phone,
-        image: new_info.image !== undefined ? new_info.image:old_info.image,
-        credit: new_info.credit !== undefined ? new_info.credit:old_info.credit,
-        password: new_info.password !== undefined ? new_info.password:old_info.password,
+        phone: new_info.phone !== undefined ? new_info.phone : old_info.phone,
+        image: new_info.image !== undefined ? new_info.image : old_info.image,
+        credit: new_info.credit !== undefined ? new_info.credit : old_info.credit,
+        password: new_info.password !== undefined ? new_info.password : old_info.password,
         location: new_info.city !== undefined ? {
-          "province":new_info.city.province,
-          "city":new_info.city.city,
-          "region":new_info.city.district,
-        }:old_info.location,
+          "province": new_info.city.province,
+          "city": new_info.city.city,
+          "region": new_info.city.district,
+        } : old_info.location,
         // real_name: new_info.real_name !== undefined ? new_info.real_name:old_info.real_name,
         // id_card: new_info.id_card !== undefined ? new_info.id_card:old_info.id_card,
-      }, ()=>{
+      }, () => {
         this.routing.push('/home');
         this.routing.push('/user/settings');
         alert("更新成功！");

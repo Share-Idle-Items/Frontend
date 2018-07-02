@@ -94,7 +94,7 @@ class MainInfo extends Component {
   componentWillMount() {
     const {store} = this.props;
     const item = this.props.org_data;
-    store.getUserInfo(item.owner.substr(1), user=>{
+    store.getUserInfo(item.user, user=>{
       this.setState({
         user: user.user,
       })
@@ -103,7 +103,7 @@ class MainInfo extends Component {
   render() {
     const {classes, store} = this.props;
     const item = this.props.org_data;
-    const item_pic = item.images;
+    const item_pic = item.image;
 
     return (
       <div className={classes.root}>
@@ -139,7 +139,7 @@ class MainInfo extends Component {
           <div className={classes.main_info}>
             <h3>{item.title}</h3>
             <p>{'共享价：￥'+item.price+'/天'}</p>
-            <p>{'剩余共享时间：'+item.availableTime+'天'}</p>
+            <p>{'剩余共享时间：'+item.time+'天'}</p>
           </div>
           <div className={classes.sub_info}>
             <p>{'所在地：'+this.state.user.city.join(' ')}</p>
@@ -170,13 +170,13 @@ class MainInfo extends Component {
   };
 
   switchToNextPicture() {
-    const data = this.props.org_data.images;
+    const data = this.props.org_data.image;
     if (this.state.selected === data.length - 1) this.setState({selected: 0});
     else this.setState({selected: this.state.selected + 1});
   }
 
   switchToPreviewPicture() {
-    const data = this.props.org_data.images;
+    const data = this.props.org_data.image;
     if (this.state.selected === 0) this.setState({selected: data.length - 1});
     else this.setState({selected: this.state.selected - 1});
   }

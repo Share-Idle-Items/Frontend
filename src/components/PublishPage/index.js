@@ -151,7 +151,7 @@ class PublishPage extends Component {
         price: 0,
         time: 5,
         transfer: ['自取', '邮寄', '面交'],
-        phone: user.phone,
+        phone: store.user.phone,
       };
       store.getUserInfo(store.user, user=>{
         this.setState({
@@ -282,8 +282,9 @@ class PublishPage extends Component {
   };
 
   tryPublish = () => {
-    push('/home');
-  };
+    this.props.store.publish(this.props.store.user, this.state)
+      .then(({result}) => this.props.store.routing.push(`/item/${result}`));
+  }
 
   render() {
     const {classes, store} = this.props;

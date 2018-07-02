@@ -70,7 +70,7 @@ class PictureColumn extends Component {
     const current_data = data[this.state.selected];
     return (
       <div className={classes.root} onMouseEnter={this.stopTimer} onMouseLeave={this.startTimer}>
-        <Item width={400} height={188} pic={current_data.picSrc} link={`/item/${current_data.id.substr(1)}`} style={{zIndex:0}}/>
+        <Item width={400} height={188} pic={current_data.picSrc} link={`/item/${current_data.id}`} style={{zIndex:0}}/>
         {this.state.showSlider && (
           <IconButton className={classes.left} color="secondary" onClick={this.switchToPreviewPicture}>
             <KeyboardArrowLeft />

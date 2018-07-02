@@ -70,7 +70,7 @@ class ItemsColumn extends Component {
               data.items.map((item, i) => {
                 return (i >= this.state.start && i < this.state.start + 5) && (
                   <Item width={140} height={200} title={item.title} pic={item.picSrc}
-                        link={`/item/${item.id.substr(1)}`} key={i} margin={'0 10px'} />
+                        link={`/item/${item.id}`} key={i} margin={'0 10px'} />
                 );
               })
             }

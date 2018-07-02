@@ -18,17 +18,27 @@ const styles = theme => ({
 @inject('store')
 @observer
 class ItemPage extends Component {
+  state = {
+    data: null,
+  };
+  componentWillMount() {
+    const item_id = this.props.match.params.id;
+    this.props.store.getItemInfo(item_id)
+      .then(json => {
+        console.log(json);
+        this.setState({data: json});
+      })
+  }
   render() {
     const {classes, store} = this.props;
     const {location, push, goBack} = store.routing;
     const item_id = this.props.match.params.id;
-    if(item_id === undefined || item_id === '') return(<div/>);
-    const data = store.getItemInfo(item_id);
+    if(item_id === undefined || item_id === '' || this.state.data === null) return(<div/>);
 
     return (<div className={classes.root}>
-      <Header org_data={data}/>
-      <MainInfo org_data={data}/>
-      <Details org_data={data}/>
+      <Header org_data={this.state.data}/>
+      <MainInfo org_data={this.state.data}/>
+      <Details org_data={this.state.data}/>
     </div>);
   }
 }

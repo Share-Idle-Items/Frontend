@@ -59,18 +59,20 @@ class LogIn extends Component {
 
   tryLog = () => {
     const {store} = this.props;
-    switch (store.confirmUser(this.state.username, this.state.password)) {
-      case store.PASS:
-        store.loginUser();
-        store.routing.push('/home');
-        break;
-      case store.NO_USER:
-        this.setState({wrong: true});
-        break;
-      case store.WRONG_PASSWORD:
-        this.setState({wrong: true});
-        break;
-    }
+    store.confirmUser(this.state.username, this.state.password, result=>{
+      switch (result) {
+        case store.PASS:
+          store.loginUser(this.state.username, this.state.password);
+          store.routing.push('/home');
+          break;
+        case store.NO_USER:
+          this.setState({wrong: true});
+          break;
+        case store.WRONG_PASSWORD:
+          this.setState({wrong: true});
+          break;
+      }
+    });
   };
 
   changeUsername = (event) => {

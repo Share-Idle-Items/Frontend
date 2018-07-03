@@ -9,7 +9,7 @@ import Settings from './Settings';
 
 const styles = theme => ({
   root: {
-    height: innerHeight,
+    minHeight: innerHeight - 190,
     display: 'flex',
     width: window.innerWidth * 0.8,
     marginLeft: window.innerWidth * 0.1,
@@ -26,26 +26,48 @@ const styles = theme => ({
 @inject('store')
 @observer
 class UserPage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: {
+        id: '',
+        name: '',
+        portrait: null,
+        phone: '',
+        city: [],
+        credit: 0,
+        id_card: '',
+        real_name: '',
+      },
+      myItems: [],
+      myUsages: [],
+    }
+  }
+  componentWillMount(){
+    const { store } = this.props;
+    store.getUserInfo(store.user, data=>{
+      this.setState(data)
+    })
+  }
   render() {
     const { classes, store } = this.props;
     const {location, push, goBack} = store.routing;
-    const data = store.getUserInfo();
-    if(data === undefined) {
+    if(store.user === undefined) {
       push('/login');
       return (<div/>);
     }
     return (<div className={classes.root}>
-      <SideBar org_data={data.user}/>
-      <div className={classes.content}>
-        <Switch>
-          <Route path={`/user/my_items`} render={(props)=><Items org_data={data.myItems}/>} />
-          <Route path={`/user/my_usages`} render={(props)=><Items org_data={data.myUsages}/>} />
-          <Route path={`/user/messages`} component={(props)=><Messages />} />
-          <Route path={`/user/settings`} component={(props)=><Settings />} />
-          <Redirect from="/user" to="/user/my_items" />
-        </Switch>
-      </div>
-    </div>);
+      <SideBar org_data={this.state.user}/>
+        <div className={classes.content}>
+          <Switch>
+            <Route path={`/user/my_items`} render={(props)=><Items org_data={this.state.myItems}/>} />
+            <Route path={`/user/my_usages`} render={(props)=><Items org_data={this.state.myUsages}/>} />
+            <Route path={`/user/messages`} component={(props)=><Messages />} />
+            <Route path={`/user/settings`} component={(props)=><Settings org_data={this.state.user}/>} />
+            <Redirect from="/user" to="/user/my_items" />
+          </Switch>
+        </div>
+      </div>);
   }
 }
 

@@ -14,7 +14,12 @@ class Store {
   @observable ITEM_LENT = 2;
   @observable MESSAGE = 0;
 
+  @observable loading = false;
+  @observable data = null;
+  @observable error = null;
+
   constructor() {
+    this.readCookie();
     // base data
     let itemList = [
       {
@@ -93,20 +98,6 @@ class Store {
         status: this.ORDER_FINISH,
         time: 1528348893,
         use_time: 4,
-      }
-    ];
-    let recordList = [
-      {
-        sender: 'u0',
-        receiver: 'u1',
-        type: this.MESSAGE,
-        content: '泥嚎！',
-        time: 1528348893,
-      }
-    ];
-    let tagList = [
-      {
-        name: ''
       }
     ];
     let arrCity = [
@@ -1775,6 +1766,29 @@ class Store {
     this.getAllOrders = () => {
       return JSON.parse(JSON.stringify(orderList));
     };
+
+  }
+
+  @action callAPI(method, postfix, body, callback) {
+    this.loading = true;
+    return fetch(`/api/${postfix}`, {
+      method: method,
+      body: body === null ? undefined : JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json())
+      .then(action(json => {
+        console.log(json);
+        this.data = json;
+        if (callback !== undefined) callback(json);
+        this.loading = false;
+        return json;
+      }))
+      .catch(action(e => {
+        console.error(e);
+        this.error = e;
+      }));
   }
 
   // for home page
@@ -1801,100 +1815,181 @@ class Store {
     }, {
       title: "猜你喜欢",
       items: ['i0', 'i1', 'i2', 'i1', 'i0'],
-    }, {
-      title: "历史记录",
-      items: ['i0', 'i1', 'i2', 'i1', 'i0', 'i1'],
-    },
+    }
   ];
 
   // for user page
-  user = 1;
-
-  // get data
-  findId(id) {
-    if (id.startsWith('i')) return this.findItem(id.substr(1));
-    else if (id.startsWith('u')) return this.findUser(id.substr(1));
-    else if (id.startsWith('o')) return this.findOrder(id.substr(1));
-    else if (id.startsWith('s')) return this.findServer(id.substr(1));
-    else if (id.startsWith('r')) return this.findRecord(id.substr(1));
-    else if (id.startsWith('t')) return this.findTag(id.substr(1));
-  }
+  @observable user = undefined;
 
   // to get data
+// TODO: done
   getHomePageInfo() {
-    let typeColumns = this.typeColumnsOnHomePage;
-    let pictureColumns = [];
-    for (const [i, id] of this.pictureColumnOnHomePage.entries()) {
-      let item = this.findId(id);
-      pictureColumns[i] = {
-        picSrc: require('./pic/' + item.images[0]),
-        id: id,
-      };
-    }
-    let itemsColumns = [];
-    for (const [i, column] of this.itemsColumnsOnHomePage.entries()) {
-      itemsColumns[i] = {
-        title: column.title,
-        items: []
-      };
-      for (const [j, id] of column.items.entries()) {
-        let item = this.findId(id);
-        itemsColumns[i].items[j] = {
-          title: item.title,
-          id: id,
-          picSrc: require('./pic/' + item.images[0]),
+    return this.callAPI('get', 'item/random/10')
+      .then(({list}) => {
+        let typeColumns = this.typeColumnsOnHomePage;
+        let pictureColumns = [];
+        for (let {image, front_id} of list) {
+          pictureColumns.push({
+            picSrc: image[0],
+            id: front_id,
+          });
         }
-      }
-    }
-    return {
-      typeColumns: typeColumns,
-      pictureColumn: pictureColumns,
-      itemsColumns: itemsColumns
-    }
+        let itemsColumns = [];
+        for (const [i, column] of this.itemsColumnsOnHomePage.entries()) {
+          let items = [];
+          for (let {name, image, front_id} of list) {
+            items.push({
+              title: name,
+              picSrc: image[0],
+              id: front_id,
+            });
+          }
+          itemsColumns.push({
+            title: column.title,
+            items: items
+          });
+
+        }
+        return {
+          typeColumns: typeColumns,
+          pictureColumn: pictureColumns,
+          itemsColumns: itemsColumns
+        }
+      });
+
   }
 
-  getUserInfo(user_id) {
-    if (user_id === undefined) user_id = this.user;
-    if (user_id === undefined) return undefined;
-    const user_info = this.findUser(user_id);
-    const items = this.getAllItems();
-    for (let i = items.length - 1; i >= 0; i--) {
-      items[i].id = items[i].front_id;
-      if (+items[i].owner.substr(1) !== +user_id) items.splice(i, 1);
-      else {
-        items[i].images[0] = require('./pic/'+items[i].images[0]);
-      }
-    }
-    const usages = this.getAllOrders();
-    for (let i = usages.length - 1; i >= 0; i--) {
-      usages[i].id = usages[i].front_id;
-      if (+usages[i].borrower.substr(1) !== +user_id)
-        usages.splice(i, 1);
-    }
-    return {
-      user: {
-        id: user_id,
-        name: user_info.user_name,
-        portrait: require('./pic/' + user_info.image),
-        phone: user_info.phone,
-        city: user_info.city,
+// TODO: done
+  getUserInfo(user_id, callback) {
+    this.callAPI("GET", "/user/" + user_id, null, user_info => {
+      this.callAPI("POST", "/search", {
+        user: user_id,
+        name: '',
+        category: '',
+        startTime: new Date().getTime() / 1000,
+        endTime: 0,
+        lowPrice: 0,
+        highPrice: 1 << 15,
+      }, itemsList => {
+        const items = [];
+        for (const item of itemsList.list) {
+          items.push({
+            id: 'i' + item.front_id,
+            front_id: item.front_id,
+            title: item.name,
+            description: item.description,
+            tags: item.category.split(","),
+            owner: item.user,
+            price: item.price,
+            deposit: item.deposit,
+            city: (item.location.province + "," + item.location.city + "," + item.location.region).split(','),
+            availableTime: parseInt((item.endTime - new Date().getTime() / 1000) / 86400),
+            images: item.image,
+            transfer: item.transfer,
+            status: this.ITEM_PUBLISH,
+          });
+        }
+        this.callAPI("POST", "/order/query", {
+          user: user_id,
+          startTime: 0,
+          endTime: new Date().getTime(),
+          role: 0,
+          status: 0,
+        }, orderList => {
+          console.log(orderList);
+          const usages = [];
+          for (const item of orderList.list) {
+            usages.push({
+              id: "o" + item.front_id,
+              front_id: item.front_id,
+              borrower: item.borrower,
+              lender: item.lender,
+              item: item.item,
+              status: item.status,
+              time: item.time,
+              use_time: parseInt((new Date().getTime() - item.time)/86400000),
+            })
+          }
+          const cb = {
+            user: {
+              id: user_id,
+              name: user_info.username,
+              portrait: user_info.image,
+              phone: user_info.phone,
+              city: [],
+              credit: user_info.credit,
+              id_card: user_info.id_card,
+              real_name: user_info.real_name,
+            },
+            myItems: items,
+            myUsages: usages,
+          };
+          if (user_info.location.province.length !== 0) cb.user.city[0] = user_info.location.province;
+          if (user_info.location.city.length !== 0) cb.user.city[1] = user_info.location.city;
+          if (user_info.location.region.length !== 0) cb.user.city[2] = user_info.location.region;
+          console.log(cb);
+          callback(cb);
+        });
+      });
+      // const items = this.getAllItems();
+      // for (let i = items.length - 1; i >= 0; i--) {
+      //   items[i].id = items[i].front_id;
+      //   if (+items[i].owner.substr(1) !== +user_id) items.splice(i, 1);
+      //   else {
+      //     items[i].images[0] = require('./pic/'+items[i].images[0]);
+      //   }
+      // }
+      // const usages = this.getAllOrders();
+      // for (let i = usages.length - 1; i >= 0; i--) {
+      //   usages[i].id = usages[i].front_id;
+      //   if (+usages[i].borrower.substr(1) !== +user_id)
+      //     usages.splice(i, 1);
+      // }
+    });
+  }
+
+  borrowItem(item, user) {
+    this.callAPI("POST", "/order", {
+      front_id: '',
+      borrower: this.user,
+      lender: user.id,
+      item: item.front_id,
+      time: new Date().getTime(),
+      status: 0,
+    })
+  }
+
+  publish(user, state) {
+    let transferCode = 0;
+    if (state.transfer.indexOf("自取") > -1) transferCode += this.GET_BY_SELF;
+    if (state.transfer.indexOf("邮寄") > -1) transferCode += this.SEND_BY_OWNER;
+    if (state.transfer.indexOf("面交") > -1) transferCode += this.TRANSFER_BY_DATE;
+
+    return this.callAPI('POST', '/item', {
+      "name": state.title,
+      "description": state.description,
+      "user": user,
+      "price": state.price,
+      "deposit": 1,
+      "image": state.picSrc,
+      "startTime": parseInt(Math.round(new Date().getTime() / 1000)),
+      "endTime": parseInt(Math.round(new Date().getTime() / 1000 + 86400 * state.time)),
+      "transfer": transferCode,
+      "location": {
+        province: state.location.province,
+        city: state.location.city,
+        region: state.location.district,
       },
-      myItems: items,
-      myUsages: usages,
-    };
+      "category": "",
+      "phone": state.phone
+    })
   }
 
   getItemInfo(id) {
-    if (id === undefined || id === null || id.length === 0) return undefined;
-    const org_data = this.findItem(id);
-    let re_data = JSON.parse(JSON.stringify(org_data));
-    for (const [i, pic] of org_data.images.entries()) {
-      re_data.images[i] = require('./pic/' + pic);
-      re_data.id = re_data.front_id;
-    }
-    return re_data;
+    return this.callAPI('get', `/item/${id}`, null);
   }
 
+// TODO: done
   getItems(key, price, time, city) {
     let list = this.getAllItems();
 
@@ -1987,26 +2082,65 @@ class Store {
   @observable NO_USER = 1;
   @observable WRONG_PASSWORD = 2;
 
-  confirmUser(username, password) {
-    let userId = this.findUserIdByName(username);
-    if (userId === -1) return this.NO_USER;
-    else if (this.checkUserPassword(userId, password)) {
-      this.last_confirm = userId;
-      return this.PASS;
-    }
-    else return this.WRONG_PASSWORD;
+  confirmUser(username, password, callback) {
+    this.callAPI("GET", "/user/" + username, null, get_json => {
+      if (get_json.front_id !== get_json.username) callback(this.NO_USER);
+      else
+        this.callAPI("POST", "/user/session", {
+          "username": username,
+          "password": password
+        }, post_json => {
+          if (post_json.result === "Fail") callback(this.WRONG_PASSWORD);
+          else {
+            this.user = username;
+            this.setCookie();
+            callback(this.PASS);
+          }
+        })
+    });
   }
 
-  @action registerUser(username, password) {
-    this.last_confirm = this.newUser(username, password);
+  registerUser(username, password) {
+    this.callAPI("POST", "/user", {
+      "username": username,
+      "password": password,
+      "front_id": username
+    })
   }
 
-  @action loginUser() {
-    this.user = this.last_confirm;
+  loginUser(username, password) {
+    this.callAPI("POST", "/user/session", {
+      "username": username,
+      "password": password
+    }, json => {
+    })
   }
+
+  updateUserInfo = (new_info) => {
+    this.callAPI("GET", "/user/" + this.user, null, old_info => {
+      this.callAPI("PATCH", "/user", {
+        front_id: this.user,
+        phone: new_info.phone !== undefined ? new_info.phone : old_info.phone,
+        image: new_info.image !== undefined ? new_info.image : old_info.image,
+        credit: new_info.credit !== undefined ? new_info.credit : old_info.credit,
+        password: new_info.password !== undefined ? new_info.password : old_info.password,
+        location: new_info.city !== undefined ? {
+          "province": new_info.city.province,
+          "city": new_info.city.city,
+          "region": new_info.city.district,
+        } : old_info.location,
+        // real_name: new_info.real_name !== undefined ? new_info.real_name:old_info.real_name,
+        // id_card: new_info.id_card !== undefined ? new_info.id_card:old_info.id_card,
+      }, () => {
+        this.routing.push('/home');
+        this.routing.push('/user/settings');
+        alert("更新成功！");
+      });
+    });
+  };
 
   getUserName() {
-    return this.findUser(this.user).user_name;
+    return this.user;
   }
 
   // about item
@@ -2048,6 +2182,26 @@ class Store {
         return '未发布';
       case this.ITEM_LENT:
         return '已借出';
+    }
+  }
+
+  @action logout() {
+    this.user = undefined;
+    this.setCookie();
+  }
+
+  setCookie() {
+    document.cookie = "user=" + this.user + "; domain=localhost; path=/;";
+    console.log(document.cookie);
+  }
+
+  readCookie() {
+    console.log(document.cookie);
+    const cookieList = document.cookie.split(";");
+    for (const cookie of cookieList) {
+      const cookiee = cookie.split("=");
+      if (cookiee[0].startsWith("user") || cookiee[0].startsWith(" user"))
+        this.user = cookiee[1];
     }
   }
 }

@@ -88,7 +88,7 @@ class SideBar extends Component {
             push(`/user/my_usages`);
             this.setState({choice: 1});
           }}>
-            <ListItemText primary="我的使用" />
+            <ListItemText primary="我的订单" />
           </ListItem>
           <ListItem button classes={{root: this.state.choice === 2 ? classes.chosen: classes.normal}} onClick={() => {
             push(`/user/messages`);

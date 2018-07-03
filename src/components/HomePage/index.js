@@ -15,14 +15,25 @@ const styles = theme => ({
 @inject('store')
 @observer
 class HomePage extends Component {
+  state = {
+    data: null,
+  };
+
+  componentWillMount() {
+    this.props.store.getHomePageInfo()
+      .then(data=>{
+        this.setState({data});
+        console.log(data);
+      });
+  }
   render() {
     const {classes, store} = this.props;
-    let data = store.getHomePageInfo();
+    if(this.state.data === null) return(<div>Loading</div>);
     return (
       <div className={classes.root}>
-        <HeadColumn org_data={data}/>
+        <HeadColumn org_data={this.state.data}/>
         {
-          data.itemsColumns.map((column, i) => {
+          this.state.data.itemsColumns.map((column, i) => {
             return (<ItemsColumn org_data={column} key={`itemsColumnOnHomePage_${i}`}/>);
           })
         }

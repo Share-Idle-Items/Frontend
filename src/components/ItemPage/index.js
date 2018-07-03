@@ -33,7 +33,7 @@ class ItemPage extends Component {
     const {classes, store} = this.props;
     const {location, push, goBack} = store.routing;
     const item_id = this.props.match.params.id;
-    if(item_id === undefined || item_id === '' || this.state.data === null) return(<div/>);
+    if(item_id === undefined || item_id === '' || this.state.data === null) return (<div/>);
 
     return (<div className={classes.root}>
       <Header org_data={this.state.data}/>

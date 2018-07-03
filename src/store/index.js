@@ -1,4 +1,4 @@
-import {observable, action, computed} from 'mobx';
+import { observable, action, computed } from 'mobx';
 
 class Store {
   // for app
@@ -19,6 +19,7 @@ class Store {
   @observable error = null;
 
   constructor() {
+    this.readCookie();
     // base data
     let itemList = [
       {
@@ -1827,7 +1828,7 @@ class Store {
       .then(({list}) => {
         let typeColumns = this.typeColumnsOnHomePage;
         let pictureColumns = [];
-        for ( let {image, front_id} of list) {
+        for (let {image, front_id} of list) {
           pictureColumns.push({
             picSrc: image[0],
             id: front_id,
@@ -1836,7 +1837,7 @@ class Store {
         let itemsColumns = [];
         for (const [i, column] of this.itemsColumnsOnHomePage.entries()) {
           let items = [];
-          for ( let {name, image, front_id} of list) {
+          for (let {name, image, front_id} of list) {
             items.push({
               title: name,
               picSrc: image[0],
@@ -1860,10 +1861,76 @@ class Store {
 
 // TODO: done
   getUserInfo(user_id, callback) {
-    console.log(user_id);
     this.callAPI("GET", "/user/" + user_id, null, user_info => {
-      const items = [];
-      const usages = [];
+      this.callAPI("POST", "/search", {
+        user: user_id,
+        name: '',
+        category: '',
+        startTime: new Date().getTime() / 1000,
+        endTime: 0,
+        lowPrice: 0,
+        highPrice: 1 << 15,
+      }, itemsList => {
+        const items = [];
+        for (const item of itemsList.list) {
+          items.push({
+            id: 'i' + item.front_id,
+            front_id: item.front_id,
+            title: item.name,
+            description: item.description,
+            tags: item.category.split(","),
+            owner: item.user,
+            price: item.price,
+            deposit: item.deposit,
+            city: (item.location.province + "," + item.location.city + "," + item.location.region).split(','),
+            availableTime: parseInt((item.endTime - new Date().getTime() / 1000) / 86400),
+            images: item.image,
+            transfer: item.transfer,
+            status: this.ITEM_PUBLISH,
+          });
+        }
+        this.callAPI("POST", "/order/query", {
+          user: user_id,
+          startTime: 0,
+          endTime: new Date().getTime(),
+          role: 0,
+          status: 0,
+        }, orderList => {
+          console.log(orderList);
+          const usages = [];
+          for (const item of orderList.list) {
+            usages.push({
+              id: "o" + item.front_id,
+              front_id: item.front_id,
+              borrower: item.borrower,
+              lender: item.lender,
+              item: item.item,
+              status: item.status,
+              time: item.time,
+              use_time: parseInt((new Date().getTime() - item.time)/86400000),
+            })
+          }
+          const cb = {
+            user: {
+              id: user_id,
+              name: user_info.username,
+              portrait: user_info.image,
+              phone: user_info.phone,
+              city: [],
+              credit: user_info.credit,
+              id_card: user_info.id_card,
+              real_name: user_info.real_name,
+            },
+            myItems: items,
+            myUsages: usages,
+          };
+          if (user_info.location.province.length !== 0) cb.user.city[0] = user_info.location.province;
+          if (user_info.location.city.length !== 0) cb.user.city[1] = user_info.location.city;
+          if (user_info.location.region.length !== 0) cb.user.city[2] = user_info.location.region;
+          console.log(cb);
+          callback(cb);
+        });
+      });
       // const items = this.getAllItems();
       // for (let i = items.length - 1; i >= 0; i--) {
       //   items[i].id = items[i].front_id;
@@ -1878,29 +1945,26 @@ class Store {
       //   if (+usages[i].borrower.substr(1) !== +user_id)
       //     usages.splice(i, 1);
       // }
-      const cb = {
-        user: {
-          id: user_id,
-          name: user_info.username,
-          portrait: user_info.image,
-          phone: user_info.phone,
-          city: [],
-          credit: user_info.credit,
-          id_card: user_info.id_card,
-          real_name: user_info.real_name,
-        },
-        myItems: items,
-        myUsages: usages,
-      };
-      if (user_info.location.province.length !== 0) cb.user.city[0] = user_info.location.province;
-      if (user_info.location.city.length !== 0) cb.user.city[1] = user_info.location.city;
-      if (user_info.location.region.length !== 0) cb.user.city[2] = user_info.location.region;
-      console.log(cb);
-      callback(cb);
     });
   }
 
+  borrowItem(item, user) {
+    this.callAPI("POST", "/order", {
+      front_id: '',
+      borrower: this.user,
+      lender: user.id,
+      item: item.front_id,
+      time: new Date().getTime(),
+      status: 0,
+    })
+  }
+
   publish(user, state) {
+    let transferCode = 0;
+    if (state.transfer.indexOf("自取") > -1) transferCode += this.GET_BY_SELF;
+    if (state.transfer.indexOf("邮寄") > -1) transferCode += this.SEND_BY_OWNER;
+    if (state.transfer.indexOf("面交") > -1) transferCode += this.TRANSFER_BY_DATE;
+
     return this.callAPI('POST', '/item', {
       "name": state.title,
       "description": state.description,
@@ -1908,20 +1972,19 @@ class Store {
       "price": state.price,
       "deposit": 1,
       "image": state.picSrc,
-      "startTime": state.time,
-      "endTime": 0,
-      "transfer": 0,
+      "startTime": parseInt(Math.round(new Date().getTime() / 1000)),
+      "endTime": parseInt(Math.round(new Date().getTime() / 1000 + 86400 * state.time)),
+      "transfer": transferCode,
       "location": {
         province: state.location.province,
         city: state.location.city,
         region: state.location.district,
       },
-      "category": state.transfer.join(','),
+      "category": "",
       "phone": state.phone
     })
   }
 
-// TODO: done
   getItemInfo(id) {
     return this.callAPI('get', `/item/${id}`, null);
   }
@@ -2030,6 +2093,7 @@ class Store {
           if (post_json.result === "Fail") callback(this.WRONG_PASSWORD);
           else {
             this.user = username;
+            this.setCookie();
             callback(this.PASS);
           }
         })
@@ -2123,6 +2187,22 @@ class Store {
 
   @action logout() {
     this.user = undefined;
+    this.setCookie();
+  }
+
+  setCookie() {
+    document.cookie = "user=" + this.user + "; domain=localhost; path=/;";
+    console.log(document.cookie);
+  }
+
+  readCookie() {
+    console.log(document.cookie);
+    const cookieList = document.cookie.split(";");
+    for (const cookie of cookieList) {
+      const cookiee = cookie.split("=");
+      if (cookiee[0].startsWith("user") || cookiee[0].startsWith(" user"))
+        this.user = cookiee[1];
+    }
   }
 }
 

@@ -146,7 +146,19 @@ class MainInfo extends Component {
             <p>{'联系方式：'+this.state.user.phone}</p>
             <p>{'交易方式：'+store.getTransferMethodByTransferCode(item.transfer)}</p>
           </div>
-          <Button variant='contained' color='primary'>立即租用</Button>
+          <Button variant='contained' color='primary'
+                  onClick={()=>{
+                    if (store.user === undefined) {
+                      alert("尚未登陆！");
+                      store.routing.push("/login");
+                    }
+                    else if(store.user === this.state.user.id) {
+                      alert("这是您的物品~")
+                    }
+                    else store.borrowItem(this.props.org_data, this.state.user)
+                  }}>
+            立即租用
+          </Button>
         </div>
       </div>);
   }

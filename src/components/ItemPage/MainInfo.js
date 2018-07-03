@@ -139,7 +139,7 @@ class MainInfo extends Component {
           <div className={classes.main_info}>
             <h3>{item.title}</h3>
             <p>{'共享价：￥'+item.price+'/天'}</p>
-            <p>{'剩余共享时间：'+item.time+'天'}</p>
+            <p>{'剩余共享时间：'+item.startTime+'天'}</p>
           </div>
           <div className={classes.sub_info}>
             <p>{'所在地：'+this.state.user.city.join(' ')}</p>

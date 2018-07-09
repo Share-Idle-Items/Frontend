@@ -235,7 +235,7 @@ class PublishPage extends Component {
 
   changePhone = event => {
     this.setState({
-      phone: +event.target.value,
+      phone: event.target.value,
     })
   };
 

@@ -18,6 +18,9 @@ class Store {
   @observable data = null;
   @observable error = null;
 
+/* @brief: the constructor
+ * @details: only containing some data or functions for test. It has no relation to the production.
+ */
   constructor() {
     this.readCookie();
     // base data
@@ -1769,6 +1772,13 @@ class Store {
 
   }
 
+/* @brief: send a query to the back-end, with the API standard.
+ * @params method: use which method in { GET, POST, PUT, DELETE, PATCH }
+ * @params postfix: the uri, which represents a resource, we want to change/ get
+ * @params body: the detail info, with format of json. Notice that GET/DELETE has no body.
+ * @params callback: a function, which will be called after getting results from the back-end.
+ * @return the result of query
+ */
   @action callAPI(method, postfix, body, callback) {
     this.loading = true;
     return fetch(`/api/${postfix}`, {
@@ -1818,11 +1828,12 @@ class Store {
     }
   ];
 
-  // for user page
+  // record the id of user. If it is undefined, it means that no user login.
   @observable user = undefined;
 
-  // to get data
-// TODO: done
+/* @brief: send a query to the back-end, to get the data, which is to show on home page.
+ * @return the result of query
+ */
   getHomePageInfo() {
     return this.callAPI('get', 'item/random/10')
       .then(({list}) => {
@@ -1859,6 +1870,11 @@ class Store {
 
   }
 
+/* @brief: send a query to the back-end, to get the data about user.
+ * @params user_id: the id of user
+ * @params callback: a function, which will be called after getting results from the back-end.
+ * @return null
+ */
   getUserInfo(user_id, callback) {
     this.callAPI("GET", "/user/" + user_id, null, user_info => {
       this.callAPI("POST", "/search", {
@@ -1947,6 +1963,11 @@ class Store {
     });
   }
 
+/* @brief: send a query to the back-end, to make a user borrow an item
+ * @params item: the id of item
+ * @params user: the id of user
+ * @return null
+ */
   borrowItem(item, user) {
     this.callAPI("POST", "/order", {
       front_id: '',
@@ -1958,6 +1979,12 @@ class Store {
     })
   }
 
+/* @brief: send a query to the back-end, to publish an item
+ * @params user: the id of user
+ * @params state: the information of this item
+ * @params callback: a function, which will be called after getting results from the back-end.
+ * @return null
+ */
   publish(user, state, callback) {
     let transferCode = 0;
     if (state.transfer.indexOf("自取") > -1) transferCode += this.GET_BY_SELF;
@@ -1993,11 +2020,23 @@ class Store {
     }, result=>callback([this.PASS, result.result]))
   }
 
+/* @brief: send a query to the back-end, to get the information of a certain item
+ * @params id: the id of the item
+ * @return null
+ */
   getItemInfo(id) {
     return this.callAPI('get', `/item/${id}`, null);
   }
 
-// TODO: done
+/* @unfinished: query to the back-end
+ * @brief: send a query to the back-end, to get the information of a certain item
+ * @params key: a string for search
+ * @params price: a string that describe a range for price
+ * @params time: a string that describe a range for available time
+ * @params city: a string that describe the location
+ * @params callback: a function, which will be called after getting results from the back-end.
+ * @return null
+ */
   getItems(key, price, time, city) {
     let list = this.getAllItems();
 
@@ -2091,6 +2130,12 @@ class Store {
   @observable NO_USER = 1;
   @observable WRONG_PASSWORD = 2;
 
+/* @brief: send a query to the back-end, to confirm the username & password of a user
+ * @params username: a string, username
+ * @params password: a string, password
+ * @params callback: a function, which will be called to inform the consequence after getting results from the back-end.
+ * @return null
+ */
   confirmUser(username, password, callback) {
     this.callAPI("GET", "/user/" + username, null, get_json => {
       if (get_json.front_id !== get_json.username) callback(this.NO_USER);
@@ -2109,6 +2154,11 @@ class Store {
     });
   }
 
+/* @brief: send a query to the back-end, to add a user
+ * @params username: a string, username
+ * @params password: a string, password
+ * @return null
+ */
   registerUser(username, password) {
     this.callAPI("POST", "/user", {
       "username": username,
@@ -2117,6 +2167,11 @@ class Store {
     })
   }
 
+/* @brief: to change the login information of store
+ * @params username: a string, username
+ * @params password: a string, password
+ * @return null
+ */
   loginUser(username, password) {
     this.callAPI("POST", "/user/session", {
       "username": username,
@@ -2125,6 +2180,10 @@ class Store {
     })
   }
 
+/* @brief: send a query to the back-end, to change some information about the user
+ * @params new_info: new information of the user
+ * @return null
+ */
   updateUserInfo = (new_info) => {
     this.callAPI("GET", "/user/" + this.user, null, old_info => {
       this.callAPI("PATCH", "/user", {
@@ -2148,15 +2207,15 @@ class Store {
     });
   };
 
-  getUserName() {
-    return this.user;
-  }
-
-  // about item
+  // transfer code about item
   @observable GET_BY_SELF = 1;
   @observable SEND_BY_OWNER = 2;
   @observable TRANSFER_BY_DATE = 4;
 
+/* @brief: change the transfer code into text
+ * @params code: the transfer code
+ * @return the text of the transfer code
+ */
   getTransferMethodByTransferCode(code) {
     let str = '';
     // noinspection JSBitwiseOperatorUsage
@@ -2168,6 +2227,10 @@ class Store {
     return str;
   }
 
+/* @brief: change the order status into text
+ * @params code: the order status
+ * @return the text of the order status
+ */
   getOrderStatusNameByCode(code) {
     switch (code) {
       case this.ORDER_CONNECT:
@@ -2183,6 +2246,10 @@ class Store {
     }
   }
 
+/* @brief: change the item status into text
+ * @params code: the item status
+ * @return the text of the item status
+ */
   getItemStatusNameByCode(code) {
     switch (code) {
       case this.ITEM_PUBLISH:
@@ -2194,16 +2261,25 @@ class Store {
     }
   }
 
+/* @brief: delete the login information in store
+ * @return null
+ */
   @action logout() {
     this.user = undefined;
     this.setCookie();
   }
 
+/* @brief: set cookie, so we can use some information, like login information, when we use the app next time.
+ * @return null
+ */
   setCookie() {
     document.cookie = "user=" + this.user + "; domain=localhost; path=/;";
     console.log(document.cookie);
   }
 
+/* @brief: read cookie, try to load the cookie, that we saved last time.
+ * @return null
+ */
   readCookie() {
     console.log(document.cookie);
     const cookieList = document.cookie.split(";");

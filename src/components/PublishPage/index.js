@@ -282,9 +282,15 @@ class PublishPage extends Component {
   };
 
   tryPublish = () => {
-    this.props.store.publish(this.props.store.user, this.state)
-      .then(({result}) => this.props.store.routing.push(`/item/${result}`));
-  }
+    const {store} = this.props;
+    this.props.store.publish(this.props.store.user, this.state, (result)=>{
+      if (result[0] === store.PASS) {
+        alert("发布成功!");
+        store.routing.push(`/item/${result[1]}`);
+      }
+      else alert(result[1]);
+    })
+  };
 
   render() {
     const {classes, store} = this.props;

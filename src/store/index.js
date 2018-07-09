@@ -1859,7 +1859,6 @@ class Store {
 
   }
 
-// TODO: done
   getUserInfo(user_id, callback) {
     this.callAPI("GET", "/user/" + user_id, null, user_info => {
       this.callAPI("POST", "/search", {
@@ -1959,13 +1958,22 @@ class Store {
     })
   }
 
-  publish(user, state) {
+  publish(user, state, callback) {
     let transferCode = 0;
     if (state.transfer.indexOf("自取") > -1) transferCode += this.GET_BY_SELF;
     if (state.transfer.indexOf("邮寄") > -1) transferCode += this.SEND_BY_OWNER;
     if (state.transfer.indexOf("面交") > -1) transferCode += this.TRANSFER_BY_DATE;
 
-    return this.callAPI('POST', '/item', {
+    // error check
+    if(state.title.length === 0) callback([this.WRONG, "标题不能为空！"]);
+    else if(state.description.length === 0) callback([this.WRONG, "填写具体描述可以让别人更快地选中您的物品哦！"]);
+    else if(state.price <= 0) callback([this.WRONG, "请输入正数价格！"]);
+    else if(state.picSrc.length === 0) callback([this.WRONG, "请上传至少一张图片！"]);
+    else if(state.time <= 0) callback([this.WRONG, "请输入正数可用时间！"]);
+    else if(transferCode === 0) callback([this.WRONG, "请添加至少一种租借方式！"]);
+    else if(state.location.province.length === 0) callback([this.WRONG, "请填写该物品的地址！"]);
+    else if(state.phone.length !== 11) callback([this.WRONG, "请填写正确的手机号码！"]);
+    else return this.callAPI('POST', '/item', {
       "name": state.title,
       "description": state.description,
       "user": user,
@@ -1982,7 +1990,7 @@ class Store {
       },
       "category": "",
       "phone": state.phone
-    })
+    }, result=>callback([this.PASS, result.result]))
   }
 
   getItemInfo(id) {
@@ -2079,6 +2087,7 @@ class Store {
 
   // to confirm user
   @observable PASS = 0;
+  @observable WRONG = -1;
   @observable NO_USER = 1;
   @observable WRONG_PASSWORD = 2;
 

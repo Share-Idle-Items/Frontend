@@ -122,7 +122,7 @@ class NavigationBarOnTop extends Component {
             <Button color="inherit" onClick={() => {
               if (store.user === undefined) push('/login');
               else push('/user');
-            }}><AccountCircle />{store.user === undefined ? '登录': store.getUserName()}</Button>
+            }}><AccountCircle />{store.user === undefined ? '登录': store.user}</Button>
           </Toolbar>
         </AppBar>
       </div>
